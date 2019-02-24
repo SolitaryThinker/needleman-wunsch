@@ -82,10 +82,10 @@ reg [SWIDTH-1:0] interconnects[LENGTH-1:0][LENGTH-1:0];
 // generate some cell modules for the grid
 generate
   genvar j, k;
-  for (j=1; j <= LENGTH; j = j + 1) begin: outer_cells
-    for (k = 1; k <= LENGTH; k = k + 1) begin: inner_cells
+  for (j=0; j < LENGTH; j = j + 1) begin: outer_cells
+    for (k = 0; k < LENGTH; k = k + 1) begin: inner_cells
 
-      if (j == 1 && k == 1) begin:s
+      if (j == 0 && k == 0) begin:s
         // top left corner
         Cell#(
           .LENGTH(LENGTH),
@@ -96,15 +96,15 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
-          .a(s1[(j-1)*SWIDTH +:SWIDTH]),
-          .b(s2[(k-1)*SWIDTH +:SWIDTH]),
-          .above(k * INDEL),
-          .left(j * INDEL),
+          .a(s1[j*SWIDTH +:SWIDTH]),
+          .b(s2[k*SWIDTH +:SWIDTH]),
+          .above((k+1) * INDEL),
+          .left((j+1) * INDEL),
           .corner(0),
-          .score(interconnects[j-1][k-1])
+          .score(interconnects[j][k])
         );
       end
-      else if (j == 1) begin:s
+      else if (j == 0) begin:s
         // top row
         Cell#(
           .LENGTH(LENGTH),
@@ -115,15 +115,15 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
-          .a(s1[(j-1)*SWIDTH +:SWIDTH]),
-          .b(s2[(k-1)*SWIDTH +:SWIDTH]),
+          .a(s1[j*SWIDTH +:SWIDTH]),
+          .b(s2[k*SWIDTH +:SWIDTH]),
           .above(k * INDEL),
-          .left(interconnects[j-1][k-2]),
+          .left(interconnects[j][k-1]),
           .corner((k-1) * INDEL),
-          .score(interconnects[j-1][k-1])
+          .score(interconnects[j][k])
         );
       end
-      else if (k == 1) begin:s
+      else if (k == 0) begin:s
         // left column
         Cell#(
           .LENGTH(LENGTH),
@@ -134,12 +134,12 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
-          .a(s1[(j-1)*SWIDTH +:SWIDTH]),
-          .b(s2[(k-1)*SWIDTH +:SWIDTH]),
-          .above(interconnects[j-2][k-1]),
+          .a(s1[j*SWIDTH +:SWIDTH]),
+          .b(s2[k*SWIDTH +:SWIDTH]),
+          .above(interconnects[j-1][k]),
           .left(j * INDEL),
-          .corner((j-2) * INDEL),
-          .score(interconnects[j-1][k-1])
+          .corner((j-1) * INDEL),
+          .score(interconnects[j][k])
         );
       end
       else begin:s
@@ -153,12 +153,12 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
-          .a(s1[(j-1)*SWIDTH +:SWIDTH]),
-          .b(s2[(k-1)*SWIDTH +:SWIDTH]),
-          .above(interconnects[j-2][k-1]),
-          .left(interconnects[j-1][k-2]),
-          .corner(interconnects[j-2][k-2]),
-          .score(interconnects[j-1][k-1])
+          .a(s1[j*SWIDTH +:SWIDTH]),
+          .b(s2[k*SWIDTH +:SWIDTH]),
+          .above(interconnects[j-1][k]),
+          .left(interconnects[j][k-1]),
+          .corner(interconnects[j-1][k-1]),
+          .score(interconnects[j][k])
         );
       end
 
