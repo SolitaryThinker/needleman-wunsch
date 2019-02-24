@@ -36,13 +36,27 @@ reg [3:0] count = 0;
 // after you replace the "..." below with signals for the
 // grid elements in your top level module
 always @(posedge clock.val) begin
-  //$display("%d %d %d %d", ...);
-  //$display("%d %d %d %d", ...);
-  //$display("%d %d %d %d", ...);
-  //$display("%d %d %d %d", ...);
-  $display("%d", g.c.score);
-  $display("%d", g.score);
-  $display("");
+  $display("=======================================================");
+  $display("%d %d %d %d", g.outer_cells[1].inner_cells[1].s.c.score,
+                          g.outer_cells[1].inner_cells[2].s.c.score,
+                          g.outer_cells[1].inner_cells[3].s.c.score,
+                          g.outer_cells[1].inner_cells[4].s.c.score
+  );
+  $display("%d %d %d %d", g.outer_cells[2].inner_cells[1].s.c.score,
+                          g.outer_cells[2].inner_cells[2].s.c.score,
+                          g.outer_cells[2].inner_cells[3].s.c.score,
+                          g.outer_cells[2].inner_cells[4].s.c.score
+  );
+  $display("%d %d %d %d", g.outer_cells[3].inner_cells[1].s.c.score,
+                          g.outer_cells[3].inner_cells[2].s.c.score,
+                          g.outer_cells[3].inner_cells[3].s.c.score,
+                          g.outer_cells[3].inner_cells[4].s.c.score
+  );
+  $display("%d %d %d %d", g.outer_cells[4].inner_cells[1].s.c.score,
+                          g.outer_cells[4].inner_cells[2].s.c.score,
+                          g.outer_cells[4].inner_cells[3].s.c.score,
+                          g.outer_cells[4].inner_cells[4].s.c.score
+  );
 
   count <= (count + 1);
   if (done | (&count)) begin
