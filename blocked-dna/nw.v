@@ -73,7 +73,7 @@ module Grid#(
   //
   // Use top_scores[0] to top_scores[LENGTH-1] as the corner input scores
   // Use top_scores[1] to top_scores[LENGTH] as the above input scores
-  input wire signed[LENGTH*SWIDTH:0] top_scores,
+  input wire signed[(LENGTH+1)*SWIDTH-1:0] top_scores,
   input wire signed[LENGTH*SWIDTH-1:0] left_scores,
   // Input strings
   input wire signed[LENGTH*CWIDTH-1:0] s1,
@@ -81,7 +81,7 @@ module Grid#(
   //FIXME actually use this
   input wire valid,
   // Ouput score
-  output wire signed[LENGTH*SWIDTH-1:0] bottom_scores,
+  output wire signed[(LENGTH+1)*SWIDTH-1:0] bottom_scores,
   output wire signed[LENGTH*SWIDTH-1:0] right_scores,
   output wire done
 );
@@ -104,9 +104,9 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
-          .above(top_scores[k]),
-          .left(left_scores[j]),
-          .corner(top_scores[LENGTH-1]),
+          .above(top_scores[(k+1)*SWIDTH +: SWIDTH]),
+          .left(left_scores[j*SWIDTH +: SWIDTH]),
+          .corner(top_scores[k*SWIDTH +:SWIDTH]),
           .score(interconnect[j][k])
         );
 
