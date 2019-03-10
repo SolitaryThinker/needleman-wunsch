@@ -51,25 +51,25 @@ always @(posedge clock.val) begin
     count = count + 1;
     $display("h: %h", s1);
     $display("h: %h", s2);
-  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
-                          g.outer_cells[0].inner_cells[1].s.c.score,
-                          g.outer_cells[0].inner_cells[2].s.c.score,
-                          g.outer_cells[0].inner_cells[3].s.c.score
+  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].c.score,
+                          g.outer_cells[0].inner_cells[1].c.score,
+                          g.outer_cells[0].inner_cells[2].c.score,
+                          g.outer_cells[0].inner_cells[3].c.score
   );
-  $display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.score,
-                          g.outer_cells[1].inner_cells[1].s.c.score,
-                          g.outer_cells[1].inner_cells[2].s.c.score,
-                          g.outer_cells[1].inner_cells[3].s.c.score
+  $display("%d %d %d %d", g.outer_cells[1].inner_cells[0].c.score,
+                          g.outer_cells[1].inner_cells[1].c.score,
+                          g.outer_cells[1].inner_cells[2].c.score,
+                          g.outer_cells[1].inner_cells[3].c.score
   );
-  $display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.score,
-                          g.outer_cells[2].inner_cells[1].s.c.score,
-                          g.outer_cells[2].inner_cells[2].s.c.score,
-                          g.outer_cells[2].inner_cells[3].s.c.score
+  $display("%d %d %d %d", g.outer_cells[2].inner_cells[0].c.score,
+                          g.outer_cells[2].inner_cells[1].c.score,
+                          g.outer_cells[2].inner_cells[2].c.score,
+                          g.outer_cells[2].inner_cells[3].c.score
   );
-  $display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.score,
-                          g.outer_cells[3].inner_cells[1].s.c.score,
-                          g.outer_cells[3].inner_cells[2].s.c.score,
-                          g.outer_cells[3].inner_cells[3].s.c.score
+  $display("%d %d %d %d", g.outer_cells[3].inner_cells[0].c.score,
+                          g.outer_cells[3].inner_cells[1].c.score,
+                          g.outer_cells[3].inner_cells[2].c.score,
+                          g.outer_cells[3].inner_cells[3].c.score
   );
     $display("align(%h,%h) = %d", s1, s2, score);
   end
