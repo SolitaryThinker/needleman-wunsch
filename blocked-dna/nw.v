@@ -139,7 +139,7 @@ generate
           .c2(s2[k*CWIDTH +:CWIDTH]),
           .above(interconnect[j-1][k]),
           .left(left_scores[j*SWIDTH +:SWIDTH]),
-          .corner(top_scores[k*SWIDTH +:SWIDTH]),
+          .corner(left_scores[(j-1)*SWIDTH +:SWIDTH]),
           .score(interconnect[j][k])
         );
       end else begin:s
@@ -177,8 +177,6 @@ endgenerate
 *    The bottom right corner cell's score is saved in both buffers but that's
 *    ok
 */
-
-
 generate
   genvar i;
   for (i=0; i < LENGTH; i=i+1) begin
