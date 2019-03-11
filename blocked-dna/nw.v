@@ -81,7 +81,7 @@ module Grid#(
   //FIXME actually use this
   input wire valid,
   // Ouput score
-  output wire signed[(LENGTH+1)*SWIDTH-1:0] bottom_scores,
+  output wire signed[LENGTH*SWIDTH-1:0] bottom_scores,
   output wire signed[LENGTH*SWIDTH-1:0] right_scores,
   output wire done
 );
@@ -94,6 +94,7 @@ generate
   for (j=0; j < LENGTH; j = j + 1) begin: outer_cells
     for (k = 0; k < LENGTH; k = k + 1) begin: inner_cells
 
+      if (j == 0 && k == 0) begin:s
         Cell#(
           .CWIDTH(CWIDTH),
           .SWIDTH(SWIDTH),
@@ -104,11 +105,60 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
-          .above(top_scores[(k+1)*SWIDTH +: SWIDTH]),
-          .left(left_scores[j*SWIDTH +: SWIDTH]),
+          .above(top_scores[(k+1)*SWIDTH +:SWIDTH]),
+          .left(left_scores[j*SWIDTH +:SWIDTH]),
           .corner(top_scores[k*SWIDTH +:SWIDTH]),
           .score(interconnect[j][k])
         );
+      end else if (j == 0) begin:s
+        Cell#(
+          .CWIDTH(CWIDTH),
+          .SWIDTH(SWIDTH),
+          .MATCH(MATCH),
+          .INDEL(INDEL),
+          .MISMATCH(MISMATCH)
+        ) c (
+          .clk(clk),
+          .c1(s1[j*CWIDTH +:CWIDTH]),
+          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .above(top_scores[(k+1)*SWIDTH +:SWIDTH]),
+          .left(interconnect[j][k-1]),
+          .corner(top_scores[k*SWIDTH +:SWIDTH]),
+          .score(interconnect[j][k])
+        );
+      end else if (k == 0) begin:s
+        Cell#(
+          .CWIDTH(CWIDTH),
+          .SWIDTH(SWIDTH),
+          .MATCH(MATCH),
+          .INDEL(INDEL),
+          .MISMATCH(MISMATCH)
+        ) c (
+          .clk(clk),
+          .c1(s1[j*CWIDTH +:CWIDTH]),
+          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .above(interconnect[j-1][k]),
+          .left(left_scores[j*SWIDTH +:SWIDTH]),
+          .corner(top_scores[k*SWIDTH +:SWIDTH]),
+          .score(interconnect[j][k])
+        );
+      end else begin:s
+        Cell#(
+          .CWIDTH(CWIDTH),
+          .SWIDTH(SWIDTH),
+          .MATCH(MATCH),
+          .INDEL(INDEL),
+          .MISMATCH(MISMATCH)
+        ) c (
+          .clk(clk),
+          .c1(s1[j*CWIDTH +:CWIDTH]),
+          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .above(interconnect[j-1][k]),
+          .left(interconnect[j][k-1]),
+          .corner(interconnect[j-1][k-1]),
+          .score(interconnect[j][k])
+        );
+      end
 
     end
   end
@@ -132,8 +182,8 @@ endgenerate
 generate
   genvar i;
   for (i=0; i < LENGTH; i=i+1) begin
-    assign bottom_scores[i] = interconnect[LENGTH - 1][i];
-    assign right_scores[i] = interconnect[i][LENGTH-1];
+    assign bottom_scores[i*SWIDTH +:SWIDTH] = interconnect[LENGTH - 1][i];
+    assign right_scores[i*SWIDTH +:SWIDTH] = interconnect[i][LENGTH-1];
   end
 endgenerate
 

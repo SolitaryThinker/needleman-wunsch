@@ -37,6 +37,10 @@ reg [3:0] count = 0;
 // grid elements in your top level module
 always @(posedge clock.val) begin
   $display("=======================================================");
+  $display("%d %d %d", g.outer_cells[0].inner_cells[1].s.c.above,
+                          g.outer_cells[0].inner_cells[1].s.c.left,
+                          g.outer_cells[0].inner_cells[1].s.c.corner);
+  $display("=======================================================");
   $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
                           g.outer_cells[0].inner_cells[1].s.c.score,
                           g.outer_cells[0].inner_cells[2].s.c.score,

@@ -2,6 +2,7 @@ include constants.v;
 include nw.v;
 
 // Instantiate input fifo; we'll read input pairs one line at a time:
+//localparam DATA_WIDTH = 2*LENGTH*CWIDTH + INPUT_COUNT_WIDTH;
 localparam DATA_WIDTH = 2*LENGTH*CWIDTH;
 wire [DATA_WIDTH-1:0] rdata;
 wire empty;
@@ -13,6 +14,7 @@ Fifo#(1, DATA_WIDTH) in (
   .empty(empty)
 );
 
+//wire [INPUT_COUNT_WIDTH-1:0] char_count = rdata[INPUT_COUNT_WIDTH-1:0];
 // Instantiate compute grid:
 wire [LENGTH*CWIDTH-1:0] s1 = rdata[2*LENGTH*CWIDTH-1:1*LENGTH*CWIDTH];
 wire [LENGTH*CWIDTH-1:0] s2 = rdata[1*LENGTH*CWIDTH-1:0*LENGTH*CWIDTH];
@@ -25,6 +27,7 @@ Grid#(
   .INDEL(INDEL),
   .MISMATCH(MISMATCH)
 ) grid (
+  .clk(clock.val),
   .s1(s1),
   .s2(s2),
   .score(score)
@@ -36,6 +39,7 @@ always @(posedge clock.val) begin
   $display("test");
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
+    $display("first time align(%d,%d) = %d", s1, s2, score);
     once <= 1;
   end
   // Edge case: Stop running when the fifo reports empty
@@ -44,6 +48,8 @@ always @(posedge clock.val) begin
   end
   // Common case: Print results as they become available
   else begin
+    $display("decimal input char count  %h", rdata);
+    $display("decimal align(%d,%d) = %d", s1, s2, score);
     $display("align(%h,%h) = %d", s1, s2, score);
   end
 end

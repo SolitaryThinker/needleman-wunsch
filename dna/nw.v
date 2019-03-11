@@ -77,7 +77,7 @@ module Grid#(
   output wire done
 );
 
-reg [SWIDTH-1:0] interconnects[LENGTH-1:0][LENGTH-1:0];
+reg [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 
 // generate some cell modules for the grid
 generate
@@ -101,7 +101,7 @@ generate
           .above((k+1) * INDEL),
           .left((j+1) * INDEL),
           .corner(0),
-          .score(interconnects[j][k])
+          .score(interconnect[j][k])
         );
       end
       else if (j == 0) begin:s
@@ -118,9 +118,9 @@ generate
           .a(s1[j*SWIDTH +:SWIDTH]),
           .b(s2[k*SWIDTH +:SWIDTH]),
           .above(k * INDEL),
-          .left(interconnects[j][k-1]),
+          .left(interconnect[j][k-1]),
           .corner((k-1) * INDEL),
-          .score(interconnects[j][k])
+          .score(interconnect[j][k])
         );
       end
       else if (k == 0) begin:s
@@ -136,10 +136,10 @@ generate
           .clk(clk),
           .a(s1[j*SWIDTH +:SWIDTH]),
           .b(s2[k*SWIDTH +:SWIDTH]),
-          .above(interconnects[j-1][k]),
+          .above(interconnect[j-1][k]),
           .left(j * INDEL),
           .corner((j-1) * INDEL),
-          .score(interconnects[j][k])
+          .score(interconnect[j][k])
         );
       end
       else begin:s
@@ -155,10 +155,10 @@ generate
           .clk(clk),
           .a(s1[j*SWIDTH +:SWIDTH]),
           .b(s2[k*SWIDTH +:SWIDTH]),
-          .above(interconnects[j-1][k]),
-          .left(interconnects[j][k-1]),
-          .corner(interconnects[j-1][k-1]),
-          .score(interconnects[j][k])
+          .above(interconnect[j-1][k]),
+          .left(interconnect[j][k-1]),
+          .corner(interconnect[j-1][k-1]),
+          .score(interconnect[j][k])
         );
       end
 
@@ -168,8 +168,8 @@ generate
   end
 endgenerate
 
-//always @(posedge clk) begin
-//end
+
+assign score = interconnect[LENGTH-1][LENGTH-1];
 
 // ...
 // you may find genvar and generate statements to be VERY useful here.

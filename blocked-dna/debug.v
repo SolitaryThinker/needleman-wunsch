@@ -15,7 +15,7 @@ wire signed[HLENGTH*SWIDTH-1:0] right_scores = {-16'd4, -16'd3, -16'd2, -16'd1};
 wire [HLENGTH*CWIDTH-1:0] s1 = {A, T, C, G};
 wire [HLENGTH*CWIDTH-1:0] s2 = {A, T, C, G};
 
-wire signed[(HLENGTH+1)*SWIDTH-1:0] top_scores;
+wire signed[HLENGTH*SWIDTH-1:0] top_scores;
 wire signed[HLENGTH*SWIDTH-1:0] left_scores;
 
 wire done;
@@ -73,35 +73,43 @@ always @(posedge clock.val) begin
   $display("above");
 
   $display("%d", g.interconnect[0][0]);
-  $display("%d %d %d", g.outer_cells[0].inner_cells[1].c.above,
-                          g.outer_cells[0].inner_cells[1].c.left,
-                          g.outer_cells[0].inner_cells[1].c.corner);
+  $display("%d %d %d", g.outer_cells[0].inner_cells[1].s.c.above,
+                          g.outer_cells[0].inner_cells[1].s.c.left,
+                          g.outer_cells[0].inner_cells[1].s.c.corner);
 
-  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].c.above,
-                          g.outer_cells[0].inner_cells[1].c.above,
-                          g.outer_cells[0].inner_cells[2].c.above,
-                          g.outer_cells[0].inner_cells[3].c.above
+  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.above,
+                          g.outer_cells[0].inner_cells[1].s.c.above,
+                          g.outer_cells[0].inner_cells[2].s.c.above,
+                          g.outer_cells[0].inner_cells[3].s.c.above
   );
+  $display("top_scores %b", top_scores[0*SWIDTH+:SWIDTH]);
+  $display("top_scores %b", top_scores[1*SWIDTH+:SWIDTH]);
+  $display("top_scores %b", top_scores[2*SWIDTH+:SWIDTH]);
+  $display("top_scores %b", top_scores[3*SWIDTH+:SWIDTH]);
+  $display("left_scores %b", left_scores[0*SWIDTH+:SWIDTH]);
+  $display("left_scores %b", left_scores[1*SWIDTH+:SWIDTH]);
+  $display("left_scores %b", left_scores[2*SWIDTH+:SWIDTH]);
+  $display("left_scores %b", left_scores[3*SWIDTH+:SWIDTH]);
   $display("=======================================================");
-  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].c.score,
-                          g.outer_cells[0].inner_cells[1].c.score,
-                          g.outer_cells[0].inner_cells[2].c.score,
-                          g.outer_cells[0].inner_cells[3].c.score
+  $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
+                          g.outer_cells[0].inner_cells[1].s.c.score,
+                          g.outer_cells[0].inner_cells[2].s.c.score,
+                          g.outer_cells[0].inner_cells[3].s.c.score
   );
-  $display("%d %d %d %d", g.outer_cells[1].inner_cells[0].c.score,
-                          g.outer_cells[1].inner_cells[1].c.score,
-                          g.outer_cells[1].inner_cells[2].c.score,
-                          g.outer_cells[1].inner_cells[3].c.score
+  $display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.score,
+                          g.outer_cells[1].inner_cells[1].s.c.score,
+                          g.outer_cells[1].inner_cells[2].s.c.score,
+                          g.outer_cells[1].inner_cells[3].s.c.score
   );
-  $display("%d %d %d %d", g.outer_cells[2].inner_cells[0].c.score,
-                          g.outer_cells[2].inner_cells[1].c.score,
-                          g.outer_cells[2].inner_cells[2].c.score,
-                          g.outer_cells[2].inner_cells[3].c.score
+  $display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.score,
+                          g.outer_cells[2].inner_cells[1].s.c.score,
+                          g.outer_cells[2].inner_cells[2].s.c.score,
+                          g.outer_cells[2].inner_cells[3].s.c.score
   );
-  $display("%d %d %d %d", g.outer_cells[3].inner_cells[0].c.score,
-                          g.outer_cells[3].inner_cells[1].c.score,
-                          g.outer_cells[3].inner_cells[2].c.score,
-                          g.outer_cells[3].inner_cells[3].c.score
+  $display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.score,
+                          g.outer_cells[3].inner_cells[1].s.c.score,
+                          g.outer_cells[3].inner_cells[2].s.c.score,
+                          g.outer_cells[3].inner_cells[3].s.c.score
   );
 
   count <= (count + 1);

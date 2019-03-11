@@ -7,6 +7,9 @@ localparam LENGTH = 8;
 // Number of bits per character
 localparam CWIDTH = 2;
 
+// Number of bits for the character count of input
+localparam INPUT_COUNT_WIDTH = 32;
+
 // Character constants
 localparam[CWIDTH-1:0] A = 2'b00;
 localparam[CWIDTH-1:0] C = 2'b01;
