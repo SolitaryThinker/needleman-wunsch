@@ -11,18 +11,24 @@ module Cell#(
   parameter signed MISMATCH = -1
 )(
   input wire clk,
+  input wire reset,
   input wire [CWIDTH-1:0] c1,
   input wire [CWIDTH-1:0] c2,
+  input wire v_above,
+  input wire v_left,
+  input wire v_corner,
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
-  output reg signed[SWIDTH-1:0] score // out
+  output reg signed[SWIDTH-1:0] score, // out
+  output reg valid // out
 );
 
 //internal wires
 reg signed[SWIDTH-1:0] above_score;
 reg signed[SWIDTH-1:0] left_score;
 reg signed[SWIDTH-1:0] corner_score;
+  reg [3:0] count = 0;
 
 //always @(above or left or corner)
 always @(posedge clk)
@@ -30,24 +36,33 @@ begin:cell
   //$display("above%d", above);
   //$display("left%d", left);
   //$display("corner%d", corner);
+  if (v_above == 1 && v_left == 1 && v_corner == 1) begin
+    above_score <= above + INDEL;
+    left_score <= left + INDEL;
+    if (c1 == c2)
+      corner_score <= corner + MATCH;
+    else
+      corner_score <= corner + MISMATCH;
 
-  above_score <= above + INDEL;
-  left_score <= left + INDEL;
-  if (c1 == c2)
-    corner_score <= corner + MATCH;
-  else
-    corner_score <= corner + MISMATCH;
-
-  if (above_score > left_score && above_score > corner_score) begin
-    score = above_score;
-  end else if (left_score > above_score && left_score > corner_score) begin
-    score = left_score;
-  end else begin //if (corner_score >= left_score && corner_score >= above_score) begin
-    score = corner_score;
+    if (above_score > left_score && above_score > corner_score) begin
+      score = above_score;
+    end else if (left_score > above_score && left_score > corner_score) begin
+      score = left_score;
+    end else begin //if (corner_score >= left_score && corner_score >= above_score) begin
+      score = corner_score;
+    end
+    //$display("above_score %d", above_score);
+    //$display("left_score %d", left_score);
+    //$display("corner_score %d", corner_score);
+    //
+    //$display("22222");
+    //$display("%d", above);
+    //count = count + 1;
+    //$display("222222222: %d", count);
+    valid = 1;
   end
-  //$display("above_score %d", above_score);
-  //$display("left_score %d", left_score);
-  //$display("corner_score %d", corner_score);
+
+  if (reset == 1) valid = 0;
 end
 endmodule
 
@@ -79,14 +94,15 @@ module Grid#(
   input wire signed[LENGTH*CWIDTH-1:0] s1,
   input wire signed[LENGTH*CWIDTH-1:0] s2,
   //FIXME actually use this
-  input wire valid,
+  input wire reset,
   // Ouput score
   output wire signed[LENGTH*SWIDTH-1:0] bottom_scores,
   output wire signed[LENGTH*SWIDTH-1:0] right_scores,
-  output wire done
+  output reg valid
 );
 
-reg signed[SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
+wire signed[SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
+wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
 
 // generate some cell modules for the grid
 generate
@@ -105,10 +121,14 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
+          .v_above(1),
+          .v_left(1),
+          .v_corner(1),
           .above(top_scores[(k+1)*SWIDTH +:SWIDTH]),
           .left(left_scores[j*SWIDTH +:SWIDTH]),
           .corner(top_scores[k*SWIDTH +:SWIDTH]),
-          .score(interconnect[j][k])
+          .score(interconnect[j][k]),
+          .valid(valid_matrix[j][k])
         );
       end else if (j == 0) begin:s
         Cell#(
@@ -121,10 +141,14 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
+          .v_above(1),
+          .v_left(valid_matrix[j][k-1]),
+          .v_corner(1),
           .above(top_scores[(k+1)*SWIDTH +:SWIDTH]),
           .left(interconnect[j][k-1]),
           .corner(top_scores[k*SWIDTH +:SWIDTH]),
-          .score(interconnect[j][k])
+          .score(interconnect[j][k]),
+          .valid(valid_matrix[j][k])
         );
       end else if (k == 0) begin:s
         Cell#(
@@ -137,10 +161,14 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
+          .v_above(valid_matrix[j-1][k]),
+          .v_left(1),
+          .v_corner(1),
           .above(interconnect[j-1][k]),
           .left(left_scores[j*SWIDTH +:SWIDTH]),
           .corner(left_scores[(j-1)*SWIDTH +:SWIDTH]),
-          .score(interconnect[j][k])
+          .score(interconnect[j][k]),
+          .valid(valid_matrix[j][k])
         );
       end else begin:s
         Cell#(
@@ -153,10 +181,14 @@ generate
           .clk(clk),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
+          .v_above(valid_matrix[j-1][k]),
+          .v_left(valid_matrix[j][k-1]),
+          .v_corner(valid_matrix[j-1][k-1]),
           .above(interconnect[j-1][k]),
           .left(interconnect[j][k-1]),
           .corner(interconnect[j-1][k-1]),
-          .score(interconnect[j][k])
+          .score(interconnect[j][k]),
+          .valid(valid_matrix[j][k])
         );
       end
 
@@ -185,10 +217,19 @@ generate
   end
 endgenerate
 
-//always @(posedge clk) begin
+//always @(outer_cells[3].inner_cells[3].s.c.score) begin
+reg [3:0] count = 0;
+always @(posedge clk) begin
+  $display("REE");
+  $display("%h", s1);
+  count = count + 1;
+  if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+    $display("REEEEEEEEEEEEEEEEEEEEEEEEEEE: %d", count);
+    valid = 1;
+  end
 //might have to set a done bit to let outside know the the bottom right corner
 //cell has changed?
-//end
+end
 
 // ...
 endmodule
@@ -220,7 +261,13 @@ module Sequencer#(
 // (probably not true anymore)
 // Eventaully this buffer
 // could probably be piggybacked onto the interconnect.
-reg [SWIDTH-1:0] buffer[CHUNK_LENGTH - 1:0];
+//
+//
+// add one to chunk length to simplify the corner score input of the first
+// column
+reg [SWIDTH-1:0] buffer[(CHUNK_LENGTH+1)*SWIDTH - 1:0];
+
+reg valid = 0;
 
 Grid#(
   .LENGTH(CHUNK_LENGTH),
@@ -233,6 +280,7 @@ Grid#(
   .clk(clk),
   .s1(s1),
   .s2(s2),
+  .valid(valid),
   .bottom_scores(score),
   .right_scores(score)
 );
@@ -240,6 +288,7 @@ Grid#(
 wire [INT_WIDTH-1:0]row_count = dna_length % MAX_LENGTH;
 reg [INT_WIDTH-1:0]row_index = 0;
 always @(posedge clk) begin
+  $display("valid %b", valid);
   $display("row_index %d", row_index);
 end
 endmodule
