@@ -19,6 +19,7 @@ wire signed[HLENGTH*SWIDTH-1:0] top_scores;
 wire signed[HLENGTH*SWIDTH-1:0] left_scores;
 
 wire done;
+reg reset = 0;
 Grid#(
   .LENGTH(HLENGTH),
   .CWIDTH(CWIDTH),
@@ -28,11 +29,11 @@ Grid#(
   .MISMATCH(MISMATCH)
 ) g (
   .clk(clock.val),
+  .reset(reset),
   .top_scores(bottom_scores),
   .left_scores(right_scores),
   .s1(s1),
   .s2(s2),
-  .reset(0),
   .bottom_scores(top_scores),
   .right_scores(left_scores),
   .valid(done)
@@ -104,11 +105,16 @@ always @(posedge clock.val) begin
                           g.outer_cells[3].inner_cells[2].s.c.score,
                           g.outer_cells[3].inner_cells[3].s.c.score
   );
-  if (done == 1)
+  if (done == 1) begin
     $display("==================DONE");
+    reset = 1;
+  end
+
+  if (reset == 1) reset = 0;
 
   count <= (count + 1);
-  if (done | (&count)) begin
+  //if (done | (&count)) begin
+  if ((&count)) begin
     $finish(1);
   end
 end

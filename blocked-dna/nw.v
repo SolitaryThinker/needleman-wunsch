@@ -62,7 +62,9 @@ begin:cell
     valid = 1;
   end
 
-  if (reset == 1) valid = 0;
+end
+always @(reset) begin
+  valid = 0;
 end
 endmodule
 
@@ -81,6 +83,7 @@ module Grid#(
 )(
   // Clock
   input wire clk,
+  input wire reset,
   // Input scores
   //
   // pass in an extra score to account for the corner score needed by the top
@@ -93,8 +96,6 @@ module Grid#(
   // Input strings
   input wire signed[LENGTH*CWIDTH-1:0] s1,
   input wire signed[LENGTH*CWIDTH-1:0] s2,
-  //FIXME actually use this
-  input wire reset,
   // Ouput score
   output wire signed[LENGTH*SWIDTH-1:0] bottom_scores,
   output wire signed[LENGTH*SWIDTH-1:0] right_scores,
@@ -119,6 +120,7 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
+          .reset(reset),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
           .v_above(1),
@@ -139,6 +141,7 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
+          .reset(reset),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
           .v_above(1),
@@ -159,6 +162,7 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
+          .reset(reset),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
@@ -179,6 +183,7 @@ generate
           .MISMATCH(MISMATCH)
         ) c (
           .clk(clk),
+          .reset(reset),
           .c1(s1[j*CWIDTH +:CWIDTH]),
           .c2(s2[k*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
@@ -227,8 +232,13 @@ always @(posedge clk) begin
     $display("REEEEEEEEEEEEEEEEEEEEEEEEEEE: %d", count);
     valid = 1;
   end
+
 //might have to set a done bit to let outside know the the bottom right corner
 //cell has changed?
+end
+
+always @(reset) begin
+  valid = 0;
 end
 
 // ...
@@ -252,7 +262,8 @@ module Sequencer#(
   input wire [INT_WIDTH-1:0] dna_length,
   input wire [CWIDTH-1:0] s1,
   input wire [CWIDTH-1:0] s2,
-  output reg signed[SWIDTH-1:0] score // out
+  output reg signed[SWIDTH-1:0] score, // out
+  output reg done
 );
 
 // This buffer is used to store intermediate cell scores as the algorithm
