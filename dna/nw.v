@@ -119,7 +119,7 @@ generate
           .b(s2[k*SWIDTH +:SWIDTH]),
           .above(k * INDEL),
           .left(interconnect[j][k-1]),
-          .corner((k-1) * INDEL),
+          .corner((k) * INDEL),
           .score(interconnect[j][k])
         );
       end
@@ -138,7 +138,7 @@ generate
           .b(s2[k*SWIDTH +:SWIDTH]),
           .above(interconnect[j-1][k]),
           .left(j * INDEL),
-          .corner((j-1) * INDEL),
+          .corner((j) * INDEL),
           .score(interconnect[j][k])
         );
       end
