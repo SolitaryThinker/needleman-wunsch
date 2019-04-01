@@ -3,18 +3,19 @@
 // Number of input pairs
 localparam NUM_INPUTS = 1000;
 // Number of characters per input
-localparam LENGTH = 8;
+localparam LENGTH = 4;
 // Number of bits per character
 localparam CWIDTH = 2;
-
-// Number of bits for the character count of input
-localparam INPUT_COUNT_WIDTH = 32;
 
 // Character constants
 localparam[CWIDTH-1:0] A = 2'b00;
 localparam[CWIDTH-1:0] C = 2'b01;
 localparam[CWIDTH-1:0] G = 2'b10;
 localparam[CWIDTH-1:0] T = 2'b11;
+
+localparam[1:0] TOP_DIR = 2'b00;
+localparam[1:0] LEFT_DIR = 2'b01;
+localparam[1:0] CORNER_DIR = 2'b10;
 
 // Number of bits per score
 localparam SWIDTH = 16;
