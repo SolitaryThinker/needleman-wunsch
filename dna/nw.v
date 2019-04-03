@@ -364,7 +364,7 @@ always @(posedge clk) begin
           wdata[CORD_LENGTH+:CORD_LENGTH] = y;
           $display("X_CORD %h, %d", wdata, waddr);
           wen = 1;
-          waddr = waddr + 1;
+          waddr <= waddr + 1;
           if (direction == TOP_DIR) begin
 
               //b_above = 1;
@@ -381,6 +381,13 @@ always @(posedge clk) begin
               x <= x - 1;
               y <= y - 1;
               $display("corner");
+          end
+          if (x == 0 && y == 0) begin
+              //$finish(1);
+              $display("||||||||||||||||||||||||||");
+              valid = 1;
+              wen <= 0;
+              back <= 0;
           end
       //end else begin
           ////valid = 1;
