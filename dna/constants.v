@@ -7,15 +7,18 @@ localparam LENGTH = 4;
 // Number of bits per character
 localparam CWIDTH = 2;
 
+// Number of bits per coordinate
+localparam CORD_LENGTH = 8;
+
 // Character constants
 localparam[CWIDTH-1:0] A = 2'b00;
 localparam[CWIDTH-1:0] C = 2'b01;
 localparam[CWIDTH-1:0] G = 2'b10;
 localparam[CWIDTH-1:0] T = 2'b11;
 
-localparam[1:0] TOP_DIR = 2'b00;
-localparam[1:0] LEFT_DIR = 2'b01;
-localparam[1:0] CORNER_DIR = 2'b10;
+//localparam[1:0] TOP_DIR = 2'b00;
+//localparam[1:0] LEFT_DIR = 2'b01;
+//localparam[1:0] CORNER_DIR = 2'b10;
 
 // Number of bits per score
 localparam SWIDTH = 16;

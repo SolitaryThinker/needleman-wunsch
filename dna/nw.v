@@ -1,3 +1,5 @@
+//localparam ADDR_SIZE = 9;
+//localparam BYTE_SIZE = 2*CORD_LENGTH;
 // Grid Elements:
 module Cell#(
   // you may have similar parameters as the top level module here...
@@ -7,6 +9,10 @@ module Cell#(
   parameter SWIDTH = 16,
   parameter X_CORD = -1,
   parameter Y_CORD = -1,
+  //parameter TOP_DIR = 2
+  parameter[1:0] TOP_DIR = 2'b00,
+  parameter[1:0] LEFT_DIR = 2'b01,
+  parameter[1:0] CORNER_DIR = 2'b10,
   // Weights
   parameter signed MATCH = 1,
   parameter signed INDEL = -1,
@@ -36,7 +42,7 @@ reg signed[SWIDTH-1:0] above_score;
 reg signed[SWIDTH-1:0] left_score;
 reg signed[SWIDTH-1:0] corner_score;
 reg [3:0] count = 0;
-reg [1:0] direction = 2'b10;
+reg [1:0] direction = 2'b00;
 
 always @(posedge clk)
 begin:cell
@@ -106,6 +112,14 @@ module Grid#(
   parameter CWIDTH = 2,
   // Number of bits per score
   parameter SWIDTH = 16,
+  // Number of bits per coordinate
+  parameter CORD_LENGTH = 8,
+  parameter ADDR_SIZE = 9,
+  parameter BYTE_SIZE = 2*CORD_LENGTH,
+  parameter[1:0] TOP_DIR = 2'b00,
+  parameter[1:0] LEFT_DIR = 2'b01,
+  parameter[1:0] CORNER_DIR = 2'b10,
+
   // Weights
   parameter signed MATCH = 1,
   parameter signed INDEL = -1,
@@ -122,12 +136,28 @@ module Grid#(
   output reg valid
 );
 
+//reg wreq = 0;
+//wire [7:0]wdata;
 
-Fifo#(LENGTH * 2, 8) alignment (
-  .clock(clock.val),
-  .rreq(!empty),
-  .rdata(rdata),
-  .empty(empty)
+//Fifo#(LENGTH * 2, 8) alignment (
+  //.clock(clock.val),
+  //.rreq(!empty),
+  //.rdata(rdata),
+  //.wreq(wreq),
+  //.wdata(wdata),
+  //.empty(empty)
+//);
+//
+
+reg wen = 0;
+reg [ADDR_SIZE-1:0] waddr = 0;
+reg [BYTE_SIZE-1:0] wdata;
+(*__file="file.mem"*)
+Memory#(ADDR_SIZE, BYTE_SIZE) mem (
+    .clock(clk),
+    .wen(wen),
+    .waddr(waddr),
+    .wdata(wdata)
 );
 
 reg [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
@@ -150,6 +180,9 @@ generate
           .SWIDTH(SWIDTH),
           .X_CORD(k),
           .Y_CORD(j),
+          .TOP_DIR(TOP_DIR),
+          .LEFT_DIR(LEFT_DIR),
+          .CORNER_DIR(CORNER_DIR),
           .MATCH(MATCH),
           .INDEL(INDEL),
           .MISMATCH(MISMATCH)
@@ -180,6 +213,9 @@ generate
           .SWIDTH(SWIDTH),
           .X_CORD(k),
           .Y_CORD(j),
+          .TOP_DIR(TOP_DIR),
+          .LEFT_DIR(LEFT_DIR),
+          .CORNER_DIR(CORNER_DIR),
           .MATCH(MATCH),
           .INDEL(INDEL),
           .MISMATCH(MISMATCH)
@@ -210,6 +246,9 @@ generate
           .SWIDTH(SWIDTH),
           .X_CORD(k),
           .Y_CORD(j),
+          .TOP_DIR(TOP_DIR),
+          .LEFT_DIR(LEFT_DIR),
+          .CORNER_DIR(CORNER_DIR),
           .MATCH(MATCH),
           .INDEL(INDEL),
           .MISMATCH(MISMATCH)
@@ -240,6 +279,9 @@ generate
           .SWIDTH(SWIDTH),
           .X_CORD(k),
           .Y_CORD(j),
+          .TOP_DIR(TOP_DIR),
+          .LEFT_DIR(LEFT_DIR),
+          .CORNER_DIR(CORNER_DIR),
           .MATCH(MATCH),
           .INDEL(INDEL),
           .MISMATCH(MISMATCH)
@@ -272,6 +314,30 @@ assign score = interconnect[LENGTH-1][LENGTH-1];
 
 reg [3:0] count = 0;
 reg once = 0;
+reg [CORD_LENGTH-1:0] x = LENGTH-1;
+reg [CORD_LENGTH-1:0] y = LENGTH-1;
+reg [1:0] direction = 2'b00;
+
+generate
+    for (j = 0; j < LENGTH; j=j+1) begin: wd
+        for (k = 0; k < LENGTH; k=k+1) begin: wd_i
+            always @(posedge clk) begin
+                if (x == k && y == j && back == 1) begin
+                    //wdata
+                    direction = outer_cells[j].inner_cells[k].s.c.direction;
+                    $display("WE MATCH %d %d", j, k);
+                    $display("WE DIRECTION %b", direction);
+                end
+          //if (outer_cells[3].inner_cells[3].s.c.direction == LEFT_DIR) begin
+              ////b_left = 1;
+              //$display("left");
+          //end
+          //if (outer_cells[3].inner_cells[3].s.c.direction == CORNER_DIR) begin
+            end
+        end
+    end
+endgenerate
+
 always @(posedge clk) begin
   $display("REE");
   $display("reset %b", reset);
@@ -279,19 +345,53 @@ always @(posedge clk) begin
   count = count + 1;
   $display("count in grid: %d", count);
   if (once == 0 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+          back = 1;
       once <= 1;
   end
-  if (once == 1 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+  //if (once == 1 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+  if (once == 1 && back == 1) begin
   //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-    $display("REEEEEEEEEEEEEEEEEEEEEEEEEEE: %d", count);
-    //valid = 1;
-    back = 1;
-    //valid_matrix[LENGTH-1][LENGTH-1] = 0;
-    align_matrix[LENGTH-1][LENGTH-1]=1;
+      //if (align_matrix[0][0] == 0) begin
+      //if (align_matrix[0][0] == 0) begin
+          $display("REEEEEEEEEEEEEEEEEEEEEEEEEEE: %d", count);
+          //valid = 1;
+          //valid_matrix[LENGTH-1][LENGTH-1] = 0;
+          align_matrix[LENGTH-1][LENGTH-1]=1;
+          //$display("X_CORD %d", outer_cells[0].inner_cells[3].s.c.X_CORD);
+          //wdata[0+:CORD_LENGTH] = outer_cells[j].inner_cells[k].s.c.X_CORD;
+          //wdata[CORD_LENGTH+:CORD_LENGTH] = outer_cells[j].inner_cells[k].s.c.Y_CORD;
+          wdata[0+:CORD_LENGTH] = x;
+          wdata[CORD_LENGTH+:CORD_LENGTH] = y;
+          $display("X_CORD %h, %d", wdata, waddr);
+          wen = 1;
+          waddr = waddr + 1;
+          if (direction == TOP_DIR) begin
+
+              //b_above = 1;
+              y <= y - 1;
+              $display("top");
+          end
+          if (direction == LEFT_DIR) begin
+              //b_left = 1;
+              x <= x - 1;
+              $display("left");
+          end
+          if (direction == CORNER_DIR) begin
+              //b_corner = 1;
+              x <= x - 1;
+              y <= y - 1;
+              $display("corner");
+          end
+      //end else begin
+          ////valid = 1;
+          ////$finish(1);
+
+      //end
   end
-  if (align_matrix[0][0] == 1) begin
-      valid = 1;
-  end
+  //if (align_matrix[0][0] == 1) begin
+      //valid = 1;
+      ////wdata = outer_cells[0].inner_cells[3].s.c.score
+  //end
 end
 
 always @(reset) begin
