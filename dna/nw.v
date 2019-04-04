@@ -40,14 +40,15 @@ reg signed[SWIDTH-1:0] corner_score;
 reg [3:0] count = 0;
 reg [1:0] direction = 2'b00;
 
-always @(posedge clk) begin:cell
+always @(posedge clk) begin
   if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
     above_score <= above + INDEL;
     left_score <= left + INDEL;
-    if (c1 == c2)
+    if (c1 == c2) begin
       corner_score <= corner + MATCH;
-    else
+    end else begin
       corner_score <= corner + MISMATCH;
+    end
 
     if (above_score > left_score && above_score > corner_score) begin
       score = above_score;
