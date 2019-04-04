@@ -159,8 +159,8 @@ Memory#(MEM_SIZE, BYTE_SIZE) mem (
 reg [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 reg valid_matrix[LENGTH-1:0][LENGTH-1:0];
 reg align_matrix[LENGTH-1:0][LENGTH-1:0];
-wire tmp = 1;
-wire tmp2 = 0;
+reg tmp = 1;
+reg tmp2 = 0;
 reg back = 0;
 
 // generate some cell modules for the grid
