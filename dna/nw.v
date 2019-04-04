@@ -306,8 +306,6 @@ generate
 endgenerate
 
 
-score = interconnect[LENGTH-1][LENGTH-1];
-
 reg [3:0] count = 0;
 reg once = 0;
 reg [CORD_LENGTH-1:0] x = LENGTH-1;
@@ -338,6 +336,7 @@ always @(posedge clk) begin
   end
   if (once == 1 && back == 1) begin
           $display("=====================: %d", count);
+          score = interconnect[LENGTH-1][LENGTH-1];
           align_matrix[LENGTH-1][LENGTH-1]=1;
           wdata[0+:CORD_LENGTH] = x;
           wdata[CORD_LENGTH+:CORD_LENGTH] = y;
