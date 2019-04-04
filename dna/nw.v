@@ -52,13 +52,13 @@ always @(posedge clk) begin
 
     if (above_score > left_score && above_score > corner_score) begin
       score <= above_score;
-      direction = TOP_DIR;
+      direction <= TOP_DIR;
     end else if (left_score > above_score && left_score > corner_score) begin
       score <= left_score;
-      direction = LEFT_DIR;
+      direction <= LEFT_DIR;
     end else begin
       score <= corner_score;
-      direction = CORNER_DIR;
+      direction <= CORNER_DIR;
     end
     //$display("above_score %d", above_score);
     //$display("left_score %d", left_score);
@@ -67,7 +67,7 @@ always @(posedge clk) begin
     //$display("CORD=== %d %d", X_CORD, Y_CORD);
     //$display("back %b ", back);
     //count = count + 1;
-    valid = 1;
+    valid <= 1;
   end
 
   // propagating back to find alignment. 0 is now valid while 1 is now invalid
@@ -75,15 +75,15 @@ always @(posedge clk) begin
       if (align == 1) begin
           //$display("CORD=== %d %d", X_CORD, Y_CORD);
           if (direction == TOP_DIR) begin
-              b_above = 1;
+              b_above <= 1;
               //$display("top");
           end
           if (direction == LEFT_DIR) begin
-              b_left = 1;
+              b_left <= 1;
               //$display("left");
           end
           if (direction == CORNER_DIR) begin
-              b_corner = 1;
+              b_corner <= 1;
               //$display("corner");
           end
       end
