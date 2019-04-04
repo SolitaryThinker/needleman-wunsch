@@ -51,13 +51,13 @@ always @(posedge clk) begin
     end
 
     if (above_score > left_score && above_score > corner_score) begin
-      score = above_score;
+      score <= above_score;
       direction = TOP_DIR;
     end else if (left_score > above_score && left_score > corner_score) begin
-      score = left_score;
+      score <= left_score;
       direction = LEFT_DIR;
     end else begin
-      score = corner_score;
+      score <= corner_score;
       direction = CORNER_DIR;
     end
     //$display("above_score %d", above_score);
