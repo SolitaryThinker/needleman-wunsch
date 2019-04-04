@@ -4,11 +4,12 @@ include nw.v;
 // Instantiate input fifo; we'll read input pairs one line at a time:
 localparam DATA_WIDTH = 2*LENGTH*CWIDTH;
 wire [DATA_WIDTH-1:0] rdata;
+reg rreq = 1;
 wire empty;
 (*__target="sw", __file="in.fifo"*)
 Fifo#(1, DATA_WIDTH) in (
   .clock(clock.val),
-  .rreq(!empty),
+  .rreq(rreq),
   .rdata(rdata),
   .empty(empty)
 );
@@ -36,8 +37,8 @@ Grid#(
 );
 
 // While there are still inputs coming out of the fifo, print the results:
-reg once = 0;
-reg [3:0]count = 0;
+reg once = 1;
+reg [4:0]count = 0;
 always @(posedge clock.val) begin
   $display("test");
   // Base case: Skip first input when fifo hasn't yet reported values
@@ -46,14 +47,20 @@ always @(posedge clock.val) begin
     once <= 1;
   end
   // Edge case: Stop running when the fifo reports empty
-  //else if (empty) begin
-    //$finish(1);
-  //end
+  else if (empty) begin
+    $finish(1);
+  end
   // Common case: Print results as they become available
   else begin
-    //$display("decimal input char count  %h", rdata);
+    if (rreq == 1) begin
+        $display("clearing rreq=============");
+        rreq <= 0;
+        //valid = 1;
+    end
+    $display("decimal input char count  %h", rdata);
     //$display("decimal align(%d,%d) = %d", s1, s2, score);
     //$display("align(%h,%h) = %d", s1, s2, score);
+
     $display("=======================================================");
     $display("h: %h", s1);
     $display("h: %h", s2);
@@ -98,20 +105,24 @@ always @(posedge clock.val) begin
       g.outer_cells[3].inner_cells[2].s.c.align,
       g.outer_cells[3].inner_cells[3].s.c.align
     );
+
     if (done == 1) begin
       $display("==================DONE");
       reset_b = 1;
     end
 
-    if (reset_b == 1) reset_b = 0;
+    if (reset_b == 1) begin
+        reset_b = 0;
+        rreq <= 1;
+    end
 
+    $display("h: %h", s1);
+    $display("h: %h", s2);
     $display("=====count %d", count);
-    count <= (count + 1);
+    //count <= (count + 1);
     if ((&count)) begin
         $finish(1);
     end
-    $display("h: %h", s1);
-    $display("h: %h", s2);
-    $display("align(%h,%h) = %d", s1, s2, score);
+    //$display("align(%h,%h) = %d", s1, s2, score);
   end
 end
