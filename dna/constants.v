@@ -8,7 +8,10 @@ localparam LENGTH = 4;
 localparam CWIDTH = 2;
 
 // Number of bits per coordinate
-//localparam CORD_LENGTH = 8;
+localparam CORD_LENGTH = 8;
+
+// Number of elements in Memory file
+localparam MEM_SIZE = 8;
 
 // Character constants
 localparam[CWIDTH-1:0] A = 2'b00;

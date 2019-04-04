@@ -109,7 +109,7 @@ module Grid#(
   parameter SWIDTH = 16,
   // Number of bits per coordinate
   parameter CORD_LENGTH = 8,
-  parameter ADDR_SIZE = 9,
+  parameter MEM_SIZE = 9,
   parameter BYTE_SIZE = 2*CORD_LENGTH,
   parameter[1:0] TOP_DIR = 2'b00,
   parameter[1:0] LEFT_DIR = 2'b01,
@@ -145,10 +145,10 @@ module Grid#(
 //
 
 reg wen = 0;
-reg [ADDR_SIZE-1:0] waddr = 0;
+reg [MEM_SIZE-1:0] waddr = 0;
 reg [BYTE_SIZE-1:0] wdata;
 (*__file="file.mem"*)
-Memory#(ADDR_SIZE, BYTE_SIZE) mem (
+Memory#(MEM_SIZE, BYTE_SIZE) mem (
     .clock(clk),
     .wen(wen),
     .waddr(waddr),
@@ -340,31 +340,28 @@ always @(posedge clk) begin
           align_matrix[LENGTH-1][LENGTH-1]=1;
           wdata[0+:CORD_LENGTH] = x;
           wdata[CORD_LENGTH+:CORD_LENGTH] = y;
-          $display("Writing to mem %h, %d", wdata, waddr);
+          $display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
           wen = 1;
           waddr <= waddr + 1;
-          if (direction == TOP_DIR) begin
-              y = y - 1;
-              //$display("top");
-          end
-          if (direction == LEFT_DIR) begin
-              x = x - 1;
-              //$display("left");
-          end
-          if (direction == CORNER_DIR) begin
-              x = x - 1;
-              y = y - 1;
-              //$display("corner");
-          end
           if (x == 0 && y == 0) begin
-              last <= 1;
-          end
-          if (last == 1) begin
               $display("||||||||||||||||||||||||||");
               last <= 0;
               valid = 1;
               wen <= 0;
               back <= 0;
+          end else
+          if (x == 0 || direction == TOP_DIR) begin
+              y = y - 1;
+              //$display("top");
+          end else
+          if (y == 0 || direction == LEFT_DIR) begin
+              x = x - 1;
+              //$display("left");
+          end else
+          if (direction == CORNER_DIR) begin
+              x = x - 1;
+              y = y - 1;
+              //$display("corner");
           end
   end
 end
