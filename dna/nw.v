@@ -128,7 +128,7 @@ module Grid#(
   input wire signed[LENGTH*CWIDTH-1:0] s1,
   input wire signed[LENGTH*CWIDTH-1:0] s2,
   // Match score
-  output wire signed[SWIDTH-1:0] score,
+  output reg signed[SWIDTH-1:0] score,
   output reg valid
 );
 
@@ -306,7 +306,7 @@ generate
 endgenerate
 
 
-assign score = interconnect[LENGTH-1][LENGTH-1];
+score = interconnect[LENGTH-1][LENGTH-1];
 
 reg [3:0] count = 0;
 reg once = 0;
