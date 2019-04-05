@@ -70,25 +70,29 @@ always @(posedge clk) begin
     valid <= 1;
   end
 
-  // propagating back to find alignment. 0 is now valid while 1 is now invalid
-  if (back == 1) begin
-      if (align == 1) begin
-          //$display("CORD=== %d %d", X_CORD, Y_CORD);
-          if (direction == TOP_DIR) begin
-              b_above <= 1;
-              //$display("top");
-          end
-          if (direction == LEFT_DIR) begin
-              b_left <= 1;
-              //$display("left");
-          end
-          if (direction == CORNER_DIR) begin
-              b_corner <= 1;
-              //$display("corner");
-          end
-      end
-  end
 end
+
+//always @(*) begin
+  //// propagating back to find alignment.
+  //if (back == 1) begin
+      //if (align == 1) begin
+          //$display("CORD=== %d %d", X_CORD, Y_CORD);
+          //if (direction == TOP_DIR) begin
+              //b_above <= 1;
+              //$display("top");
+          //end
+          //if (direction == LEFT_DIR) begin
+              //b_left <= 1;
+              //$display("left");
+          //end
+          //if (direction == CORNER_DIR) begin
+              //b_corner <= 1;
+              //$display("corner");
+          //end
+      //end
+  //end
+//end
+
 always @(reset) begin
     //$display("CELL RESET");
     valid <= 0;
@@ -147,7 +151,10 @@ module Grid#(
 
 reg wen = 0;
 reg [MEM_SIZE-1:0] waddr = 0;
-reg [BYTE_SIZE-1:0] wdata;
+reg [CORD_LENGTH-1:0] x = LENGTH-1;
+reg [CORD_LENGTH-1:0] y = LENGTH-1;
+// our write data will always be the concatnation of x and y.
+wire [BYTE_SIZE-1:0] wdata = {x, y};
 (*__file="file.mem"*)
 Memory#(MEM_SIZE, BYTE_SIZE) mem (
     .clock(clk),
@@ -308,8 +315,6 @@ endgenerate
 
 reg [3:0] count = 0;
 reg once = 0;
-reg [CORD_LENGTH-1:0] x = LENGTH-1;
-reg [CORD_LENGTH-1:0] y = LENGTH-1;
 reg [1:0] direction = 2'b00;
 
 generate
@@ -328,7 +333,9 @@ endgenerate
 
 always @(valid_matrix[LENGTH-1][LENGTH-1]) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-        back = 1;
+        back <= 1;
+        align_matrix[LENGTH-1][LENGTH-1] <= 1;
+        wen <= 1;
         //once <= 1;
     end
 end
@@ -344,11 +351,7 @@ always @(posedge clk) begin
   if (back == 1) begin
           $display("=====================: %d", count);
           //score = interconnect[LENGTH-1][LENGTH-1];
-          align_matrix[LENGTH-1][LENGTH-1] <= 1;
-          wdata[0+:CORD_LENGTH] <= x;
-          wdata[CORD_LENGTH+:CORD_LENGTH] <= y;
           $display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
-          wen <= 1;
           waddr <= waddr + 1;
           if (x == 0 && y == 0) begin
               $display("||||||||||||||||||||||||||");
