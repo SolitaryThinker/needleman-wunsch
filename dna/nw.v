@@ -315,9 +315,9 @@ reg [1:0] direction = 2'b00;
 generate
     for (j = 0; j < LENGTH; j=j+1) begin: wd
         for (k = 0; k < LENGTH; k=k+1) begin: wd_i
-            always @(posedge clk) begin
+            always @(posedge x, y) begin
                 if (x == k && y == j && back == 1) begin
-                    direction = outer_cells[j].inner_cells[k].s.c.direction;
+                    direction <= outer_cells[j].inner_cells[k].s.c.direction;
                     //$display("WE MATCH %d %d", j, k);
                     //$display("WE DIRECTION %b", direction);
                 end
@@ -326,41 +326,48 @@ generate
     end
 endgenerate
 
+always @(valid_matrix[LENGTH-1][LENGTH-1]) begin
+    if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+        back = 1;
+        //once <= 1;
+    end
+end
+
 reg last = 0;
 always @(posedge clk) begin
-  count = count + 1;
+  count <= count + 1;
   $display("count in grid: %d", count);
-  if (once == 0 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-          back = 1;
-      once <= 1;
-  end
-  if (once == 1 && back == 1) begin
+  //if (once == 0 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+      //back <= 1;
+      //once <= 1;
+  //end
+  if (back == 1) begin
           $display("=====================: %d", count);
           //score = interconnect[LENGTH-1][LENGTH-1];
-          align_matrix[LENGTH-1][LENGTH-1]=1;
-          wdata[0+:CORD_LENGTH] = x;
-          wdata[CORD_LENGTH+:CORD_LENGTH] = y;
+          align_matrix[LENGTH-1][LENGTH-1] <= 1;
+          wdata[0+:CORD_LENGTH] <= x;
+          wdata[CORD_LENGTH+:CORD_LENGTH] <= y;
           $display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
-          wen = 1;
+          wen <= 1;
           waddr <= waddr + 1;
           if (x == 0 && y == 0) begin
               $display("||||||||||||||||||||||||||");
               last <= 0;
-              valid = 1;
+              valid <= 1;
               wen <= 0;
               back <= 0;
           end else
           if (x == 0 || direction == TOP_DIR) begin
-              y = y - 1;
+              y <= y - 1;
               //$display("top");
           end else
           if (y == 0 || direction == LEFT_DIR) begin
-              x = x - 1;
+              x <= x - 1;
               //$display("left");
           end else
           if (direction == CORNER_DIR) begin
-              x = x - 1;
-              y = y - 1;
+              x <= x - 1;
+              y <= y - 1;
               //$display("corner");
           end
   end
@@ -368,7 +375,7 @@ end
 
 always @(reset) begin
     //$display("RESETTING");
-    valid = 0;
+    valid <= 0;
     once <= 0;
     x <= LENGTH-1;
     y <= LENGTH-1;
