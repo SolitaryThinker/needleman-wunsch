@@ -40,25 +40,25 @@ reg signed[SWIDTH-1:0] corner_score;
 reg [3:0] count = 0;
 reg [1:0] direction = 2'b00;
 
-always @(posedge clk) begin
+always @(*) begin
   if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
-    above_score <= above + INDEL;
-    left_score <= left + INDEL;
+    above_score = above + INDEL;
+    left_score = left + INDEL;
     if (c1 == c2) begin
-      corner_score <= corner + MATCH;
+      corner_score = corner + MATCH;
     end else begin
-      corner_score <= corner + MISMATCH;
+      corner_score = corner + MISMATCH;
     end
 
     if (above_score > left_score && above_score > corner_score) begin
-      score <= above_score;
-      direction <= TOP_DIR;
+      score = above_score;
+      direction = TOP_DIR;
     end else if (left_score > above_score && left_score > corner_score) begin
-      score <= left_score;
-      direction <= LEFT_DIR;
+      score = left_score;
+      direction = LEFT_DIR;
     end else begin
-      score <= corner_score;
-      direction <= CORNER_DIR;
+      score = corner_score;
+      direction = CORNER_DIR;
     end
     //$display("above_score %d", above_score);
     //$display("left_score %d", left_score);
@@ -67,31 +67,31 @@ always @(posedge clk) begin
     //$display("CORD=== %d %d", X_CORD, Y_CORD);
     //$display("back %b ", back);
     //count = count + 1;
-    valid <= 1;
+    valid = 1;
   end
 
 end
 
-//always @(*) begin
-  //// propagating back to find alignment.
-  //if (back == 1) begin
-      //if (align == 1) begin
-          //$display("CORD=== %d %d", X_CORD, Y_CORD);
-          //if (direction == TOP_DIR) begin
-              //b_above <= 1;
-              //$display("top");
-          //end
-          //if (direction == LEFT_DIR) begin
-              //b_left <= 1;
-              //$display("left");
-          //end
-          //if (direction == CORNER_DIR) begin
-              //b_corner <= 1;
-              //$display("corner");
-          //end
-      //end
-  //end
-//end
+always @(*) begin
+  // propagating back to find alignment.
+  if (back == 1) begin
+      if (align == 1) begin
+          $display("CORD=== %d %d", X_CORD, Y_CORD);
+          if (direction == TOP_DIR) begin
+              b_above <= 1;
+              $display("top");
+          end
+          if (direction == LEFT_DIR) begin
+              b_left <= 1;
+              $display("left");
+          end
+          if (direction == CORNER_DIR) begin
+              b_corner <= 1;
+              $display("corner");
+          end
+      end
+  end
+end
 
 always @(reset) begin
     //$display("CELL RESET");
