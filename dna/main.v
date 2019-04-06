@@ -65,6 +65,8 @@ always @(posedge clock.val) begin
     $display("=======================================================");
     $display("h: %h", s1);
     $display("h: %h", s2);
+    //$display("h: %b", s1);
+    //$display("h: %b", s2);
     $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
       g.outer_cells[0].inner_cells[1].s.c.score,
       g.outer_cells[0].inner_cells[2].s.c.score,

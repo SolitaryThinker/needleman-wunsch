@@ -40,8 +40,10 @@ reg signed[SWIDTH-1:0] corner_score;
 //always @(c1, c2, corner) begin
 always @(*) begin
     if (c1 == c2) begin
+    //$display("%b, %b MATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
       corner_score <= corner + MATCH;
     end else begin
+    //$display("%b, %b MISMATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
       corner_score <= corner + MISMATCH;
     end
 end
@@ -68,11 +70,11 @@ always @(posedge clk) begin
       score <= corner_score;
       direction <= CORNER_DIR;
     end
-    //$display("above_score %d", above_score);
-    //$display("left_score %d", left_score);
-    //$display("corner_score %d", corner_score);
+    $display("above_score %d", above_score);
+    $display("left_score %d", left_score);
+    $display("corner_score %d", corner_score);
 
-    //$display("CORD=== %d %d", X_CORD, Y_CORD);
+    $display("CORD=== %d %d", X_CORD, Y_CORD);
     //$display("back %b ", back);
     //count = count + 1;
     valid <= 1;
@@ -80,26 +82,26 @@ always @(posedge clk) begin
 
 end
 
-//always @(*) begin
-  //// propagating back to find alignment.
-  //if (back == 1) begin
-      //if (align == 1) begin
-          //$display("CORD=== %d %d", X_CORD, Y_CORD);
-          //if (direction == TOP_DIR) begin
-              //b_above <= 1;
-              //$display("top");
-          //end
-          //if (direction == LEFT_DIR) begin
-              //b_left <= 1;
-              //$display("left");
-          //end
-          //if (direction == CORNER_DIR) begin
-              //b_corner <= 1;
-              //$display("corner");
-          //end
-      //end
-  //end
-//end
+always @(posedge clk) begin
+  // propagating back to find alignment.
+  if (back == 1) begin
+      if (align == 1) begin
+          $display("CORD=== %d %d", X_CORD, Y_CORD);
+          if (direction == TOP_DIR) begin
+              b_above <= 1;
+              $display("top");
+          end
+          if (direction == LEFT_DIR) begin
+              b_left <= 1;
+              $display("left");
+          end
+          if (direction == CORNER_DIR) begin
+              b_corner <= 1;
+              $display("corner");
+          end
+      end
+  end
+end
 
 always @(reset) begin
     //$display("CELL RESET");
@@ -200,8 +202,8 @@ generate
         ) c (
           .clk(clk),
           .reset(reset),
-          .c1(s1[j*CWIDTH +:CWIDTH]),
-          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
+          .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(tmp),
           .v_left(tmp),
           .v_corner(tmp),
@@ -233,8 +235,8 @@ generate
         ) c (
           .clk(clk),
           .reset(reset),
-          .c1(s1[j*CWIDTH +:CWIDTH]),
-          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
+          .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(tmp),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(tmp),
@@ -266,8 +268,8 @@ generate
         ) c (
           .clk(clk),
           .reset(reset),
-          .c1(s1[j*CWIDTH +:CWIDTH]),
-          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
+          .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
           .v_left(tmp),
           .v_corner(tmp),
@@ -299,8 +301,8 @@ generate
         ) c (
           .clk(clk),
           .reset(reset),
-          .c1(s1[j*CWIDTH +:CWIDTH]),
-          .c2(s2[k*CWIDTH +:CWIDTH]),
+          .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
+          .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(valid_matrix[j-1][k-1]),
