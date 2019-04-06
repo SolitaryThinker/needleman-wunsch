@@ -42,7 +42,6 @@ Grid#(
 reg once = 1;
 reg [4:0]count = 0;
 always @(posedge clock.val) begin
-  $display("test");
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
     $display("ONCE=====================");

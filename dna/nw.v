@@ -34,21 +34,29 @@ module Cell#(
 );
 
 //internal wires
-reg signed[SWIDTH-1:0] above_score;
-reg signed[SWIDTH-1:0] left_score;
+wire signed[SWIDTH-1:0] above_score = above + INDEL;
+wire signed[SWIDTH-1:0] left_score = left + INDEL;
 reg signed[SWIDTH-1:0] corner_score;
-reg [3:0] count = 0;
-reg [1:0] direction = 2'b00;
-
-always @(posedge clk) begin
-  if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
-    above_score <= above + INDEL;
-    left_score <= left + INDEL;
+//always @(c1, c2, corner) begin
+always @(*) begin
     if (c1 == c2) begin
       corner_score <= corner + MATCH;
     end else begin
       corner_score <= corner + MISMATCH;
     end
+end
+reg [3:0] count = 0;
+reg [1:0] direction = 2'b00;
+
+always @(posedge clk) begin
+  if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+    //above_score <= above + INDEL;
+    //left_score <= left + INDEL;
+    //if (c1 == c2) begin
+      //corner_score <= corner + MATCH;
+    //end else begin
+      //corner_score <= corner + MISMATCH;
+    //end
 
     if (above_score > left_score && above_score > corner_score) begin
       score <= above_score;
@@ -315,7 +323,7 @@ endgenerate
 
 reg [3:0] count = 0;
 reg once = 0;
-reg [1:0] direction = 2'b00;
+reg [1:0] direction = 2'b01;
 
 generate
     for (j = 0; j < LENGTH; j=j+1) begin: wd
@@ -323,8 +331,8 @@ generate
             always @(posedge x, y) begin
                 if (x == k && y == j && back == 1) begin
                     direction <= outer_cells[j].inner_cells[k].s.c.direction;
-                    //$display("WE MATCH %d %d", j, k);
-                    //$display("WE DIRECTION %b", direction);
+                    $display("WE MATCH %d %d", j, k);
+                    $display("WE DIRECTION %b", direction);
                 end
             end
         end
@@ -334,6 +342,7 @@ endgenerate
 always @(valid_matrix[LENGTH-1][LENGTH-1]) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
         back <= 1;
+        direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
         align_matrix[LENGTH-1][LENGTH-1] <= 1;
         wen <= 1;
         //once <= 1;
@@ -362,16 +371,16 @@ always @(posedge clk) begin
           end else
           if (x == 0 || direction == TOP_DIR) begin
               y <= y - 1;
-              //$display("top");
+              $display("top");
           end else
           if (y == 0 || direction == LEFT_DIR) begin
               x <= x - 1;
-              //$display("left");
+              $display("left");
           end else
           if (direction == CORNER_DIR) begin
               x <= x - 1;
               y <= y - 1;
-              //$display("corner");
+              $display("corner");
           end
   end
 end
