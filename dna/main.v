@@ -40,7 +40,7 @@ Grid#(
 
 // While there are still inputs coming out of the fifo, print the results:
 reg once = 1;
-reg [4:0]count = 0;
+reg [5:0]count = 0;
 always @(posedge clock.val) begin
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
@@ -111,11 +111,11 @@ always @(posedge clock.val) begin
 
     if (done == 1) begin
       $display("==================DONE");
-      reset_b = 1;
+      reset_b <= 1;
     end
 
     if (reset_b == 1) begin
-        reset_b = 0;
+        reset_b <= 0;
         rreq <= 1;
     end
 

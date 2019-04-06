@@ -70,11 +70,11 @@ always @(posedge clk) begin
       score <= corner_score;
       direction <= CORNER_DIR;
     end
-    $display("above_score %d", above_score);
-    $display("left_score %d", left_score);
-    $display("corner_score %d", corner_score);
+    //$display("above_score %d", above_score);
+    //$display("left_score %d", left_score);
+    //$display("corner_score %d", corner_score);
 
-    $display("CORD=== %d %d", X_CORD, Y_CORD);
+    //$display("CORD=== %d %d", X_CORD, Y_CORD);
     //$display("back %b ", back);
     //count = count + 1;
     valid <= 1;
@@ -333,8 +333,8 @@ generate
             always @(posedge x, y) begin
                 if (x == k && y == j && back == 1) begin
                     direction <= outer_cells[j].inner_cells[k].s.c.direction;
-                    $display("WE MATCH %d %d", j, k);
-                    $display("WE DIRECTION %b", direction);
+                    //$display("WE MATCH %d %d", j, k);
+                    //$display("WE DIRECTION %b", direction);
                 end
             end
         end
@@ -388,11 +388,12 @@ always @(posedge clk) begin
 end
 
 always @(reset) begin
-    //$display("RESETTING");
+    $display("RESETTING");
     valid <= 0;
     once <= 0;
     x <= LENGTH-1;
     y <= LENGTH-1;
+    back <= 0;
 end
 
 // reset both valid_matrix and align_matrix
