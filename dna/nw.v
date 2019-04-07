@@ -29,8 +29,8 @@ module Cell#(
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
   input reg back,
   output reg signed[SWIDTH-1:0] score, // out
-  output reg valid, // out
-  input wire align
+  output reg valid // out
+  //input wire align
 );
 
 //internal wires
@@ -51,67 +51,74 @@ reg [3:0] count = 0;
 reg [1:0] direction = 2'b00;
 
 always @(posedge clk) begin
-  if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
-    //above_score <= above + INDEL;
-    //left_score <= left + INDEL;
-    //if (c1 == c2) begin
+  if (reset == 0) begin
+    if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+      //above_score <= above + INDEL;
+      //left_score <= left + INDEL;
+      //if (c1 == c2) begin
       //corner_score <= corner + MATCH;
-    //end else begin
+      //end else begin
       //corner_score <= corner + MISMATCH;
-    //end
+      //end
 
-    if (above_score > left_score && above_score > corner_score) begin
-      score <= above_score;
-      direction <= TOP_DIR;
-    end else if (left_score > above_score && left_score > corner_score) begin
-      score <= left_score;
-      direction <= LEFT_DIR;
-    end else begin
-      score <= corner_score;
-      direction <= CORNER_DIR;
-    end
-    //$display("above_score %d", above_score);
-    //$display("left_score %d", left_score);
-    //$display("corner_score %d", corner_score);
-
-    //$display("CORD=== %d %d", X_CORD, Y_CORD);
-    //$display("back %b ", back);
-    //count = count + 1;
-    valid <= 1;
-  end
-
-end
-
-always @(posedge clk) begin
-  // propagating back to find alignment.
-  if (back == 1) begin
-      if (align == 1) begin
-          $display("CORD=== %d %d", X_CORD, Y_CORD);
-          if (direction == TOP_DIR) begin
-              b_above <= 1;
-              $display("top");
-          end
-          if (direction == LEFT_DIR) begin
-              b_left <= 1;
-              $display("left");
-          end
-          if (direction == CORNER_DIR) begin
-              b_corner <= 1;
-              $display("corner");
-          end
+      if (above_score > left_score && above_score > corner_score) begin
+        score <= above_score;
+        direction <= TOP_DIR;
+      end else if (left_score > above_score && left_score > corner_score) begin
+        score <= left_score;
+        direction <= LEFT_DIR;
+      end else begin
+        score <= corner_score;
+        direction <= CORNER_DIR;
       end
-  end
-end
+      //$display("above_score %d", above_score);
+      //$display("left_score %d", left_score);
+      //$display("corner_score %d", corner_score);
 
-always @(reset) begin
-    //$display("CELL RESET");
+      //$display("CORD=== %d %d", X_CORD, Y_CORD);
+      //$display("back %b ", back);
+      //count = count + 1;
+      valid <= 1;
+    end
+  end else begin
     valid <= 0;
-    b_above <= 0;
-    b_left <= 0;
-    b_corner <= 0;
     score <= 0;
     direction <= 2'b00;
+  end
 end
+
+//always @(posedge clk) begin
+  //// propagating back to find alignment.
+  //if (reset != 1 && back == 1) begin
+      //if (align == 1) begin
+          ////$display("CORD=== %d %d", X_CORD, Y_CORD);
+          //if (direction == TOP_DIR) begin
+              //b_above <= 1;
+              ////$display("top");
+          //end
+          //if (direction == LEFT_DIR) begin
+              //b_left <= 1;
+              ////$display("left");
+          //end
+          //if (direction == CORNER_DIR) begin
+              //b_corner <= 1;
+              ////$display("corner");
+          //end
+      //end
+  //end
+//end
+
+//always @(reset) begin
+    ////$display("CELL RESET");
+    //if (reset == 1) begin
+    //b_above <= 0;
+    //b_left <= 0;
+    //b_corner <= 0;
+    //valid <= 0;
+    //score <= 0;
+    //direction <= 2'b00;
+  //end
+//end
 endmodule
 
 // Grid:
@@ -175,7 +182,7 @@ Memory#(MEM_SIZE, BYTE_SIZE) mem (
 
 reg [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 reg valid_matrix[LENGTH-1:0][LENGTH-1:0];
-reg align_matrix[LENGTH-1:0][LENGTH-1:0];
+//reg align_matrix[LENGTH-1:0][LENGTH-1:0];
 reg tmp = 1;
 reg tmp2 = 0;
 reg back = 0;
@@ -215,8 +222,8 @@ generate
           .corner(0),
           .back(back),
           .score(interconnect[j][k]),
-          .valid(valid_matrix[j][k]),
-          .align(align_matrix[j][k])
+          .valid(valid_matrix[j][k])
+          //.align(align_matrix[j][k])
         );
       end
       else if (j == 0) begin:s
@@ -240,16 +247,16 @@ generate
           .v_above(tmp),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(tmp),
-          .b_above(tmp2),
-          .b_left(align_matrix[j][k-1]),
-          .b_corner(tmp2),
+          //.b_above(tmp2),
+          //.b_left(align_matrix[j][k-1]),
+          //.b_corner(tmp2),
           .above((k+1) * INDEL),
           .left(interconnect[j][k-1]),
           .corner((k) * INDEL),
           .back(back),
           .score(interconnect[j][k]),
-          .valid(valid_matrix[j][k]),
-          .align(align_matrix[j][k])
+          .valid(valid_matrix[j][k])
+          //.align(align_matrix[j][k])
         );
       end
       else if (k == 0) begin:s
@@ -273,16 +280,16 @@ generate
           .v_above(valid_matrix[j-1][k]),
           .v_left(tmp),
           .v_corner(tmp),
-          .b_above(align_matrix[j-1][k]),
-          .b_left(tmp2),
-          .b_corner(tmp2),
+          //.b_above(align_matrix[j-1][k]),
+          //.b_left(tmp2),
+          //.b_corner(tmp2),
           .above(interconnect[j-1][k]),
           .left((j+1) * INDEL),
           .corner((j) * INDEL),
           .back(back),
           .score(interconnect[j][k]),
-          .valid(valid_matrix[j][k]),
-          .align(align_matrix[j][k])
+          .valid(valid_matrix[j][k])
+          //.align(align_matrix[j][k])
         );
       end
       else begin:s
@@ -306,16 +313,16 @@ generate
           .v_above(valid_matrix[j-1][k]),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(valid_matrix[j-1][k-1]),
-          .b_above(align_matrix[j-1][k]),
-          .b_left(align_matrix[j][k-1]),
-          .b_corner(align_matrix[j-1][k-1]),
+          //.b_above(align_matrix[j-1][k]),
+          //.b_left(align_matrix[j][k-1]),
+          //.b_corner(align_matrix[j-1][k-1]),
           .above(interconnect[j-1][k]),
           .left(interconnect[j][k-1]),
           .corner(interconnect[j-1][k-1]),
           .back(back),
           .score(interconnect[j][k]),
-          .valid(valid_matrix[j][k]),
-          .align(align_matrix[j][k])
+          .valid(valid_matrix[j][k])
+          //.align(align_matrix[j][k])
         );
       end
     end
@@ -330,11 +337,12 @@ reg [1:0] direction = 2'b01;
 generate
     for (j = 0; j < LENGTH; j=j+1) begin: wd
         for (k = 0; k < LENGTH; k=k+1) begin: wd_i
-            always @(posedge x, y) begin
+            always @(x, y) begin
                 if (x == k && y == j && back == 1) begin
                     direction <= outer_cells[j].inner_cells[k].s.c.direction;
                     //$display("WE MATCH %d %d", j, k);
                     //$display("WE DIRECTION %b", direction);
+                    $display("hahaha %d", count);
                 end
             end
         end
@@ -345,7 +353,9 @@ always @(valid_matrix[LENGTH-1][LENGTH-1]) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
         back <= 1;
         direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
-        align_matrix[LENGTH-1][LENGTH-1] <= 1;
+        $display("ASDASDASD %d", count);
+        //direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
+        //align_matrix[LENGTH-1][LENGTH-1] <= 1;
         wen <= 1;
         //once <= 1;
     end
@@ -354,46 +364,48 @@ end
 reg last = 0;
 always @(posedge clk) begin
   count <= count + 1;
-  $display("count in grid: %d", count);
+  //$display("count in grid: %d", count);
   //if (once == 0 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       //back <= 1;
       //once <= 1;
   //end
-  if (back == 1) begin
-          $display("=====================: %d", count);
+  if (reset != 1 && back == 1) begin
+          //$display("=====================: %d", count);
           //score = interconnect[LENGTH-1][LENGTH-1];
-          $display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
+          //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
           waddr <= waddr + 1;
           if (x == 0 && y == 0) begin
-              $display("||||||||||||||||||||||||||");
+              //$display("||||||||||||||||||||||||||");
               last <= 0;
               valid <= 1;
               wen <= 0;
-              back <= 0;
+              //back <= 0;
           end else
           if (x == 0 || direction == TOP_DIR) begin
               y <= y - 1;
-              $display("top");
+              //$display("top");
           end else
           if (y == 0 || direction == LEFT_DIR) begin
               x <= x - 1;
-              $display("left");
+              //$display("left");
           end else
           if (direction == CORNER_DIR) begin
               x <= x - 1;
               y <= y - 1;
-              $display("corner");
+              //$display("corner");
           end
   end
 end
 
 always @(reset) begin
-    $display("RESETTING");
+    //$display("RESETTING");
+    if (reset == 1) begin
     valid <= 0;
     once <= 0;
     x <= LENGTH-1;
     y <= LENGTH-1;
     back <= 0;
+  end
 end
 
 // reset both valid_matrix and align_matrix
@@ -403,7 +415,7 @@ generate
             always @(reset) begin
                 //$display("RESETTING");
                 valid_matrix[j][k] <= 0;
-                align_matrix[j][k] <= 0;
+                //align_matrix[j][k] <= 0;
                 interconnect[j][k] <= 0;
             end
         end

@@ -44,7 +44,7 @@ reg [5:0]count = 0;
 always @(posedge clock.val) begin
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
-    $display("ONCE=====================");
+    //$display("ONCE=====================");
     once <= 1;
   end
   // Edge case: Stop running when the fifo reports empty
@@ -54,17 +54,18 @@ always @(posedge clock.val) begin
   // Common case: Print results as they become available
   else begin
     if (rreq == 1) begin
-        $display("clearing rreq=============");
+        //$display("clearing rreq=============");
         rreq <= 0;
         //valid = 1;
     end
-    $display("decimal input char count  %h", rdata);
+    //$display("decimal input char count  %h", rdata);
     //$display("decimal align(%d,%d) = %d", s1, s2, score);
     //$display("align(%h,%h) = %d", s1, s2, score);
 
-    $display("=======================================================");
-    $display("h: %h", s1);
-    $display("h: %h", s2);
+    //$display("=======================================================");
+    //$display("h: %h", s1);
+    //$display("h: %h", s2);
+
     //$display("h: %b", s1);
     //$display("h: %b", s2);
     $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
@@ -88,29 +89,29 @@ always @(posedge clock.val) begin
       g.outer_cells[3].inner_cells[3].s.c.score
     );
     $display("-----------------------");
-    $display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.align,
-      g.outer_cells[0].inner_cells[1].s.c.align,
-      g.outer_cells[0].inner_cells[2].s.c.align,
-      g.outer_cells[0].inner_cells[3].s.c.align
-    );
-    $display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.align,
-      g.outer_cells[1].inner_cells[1].s.c.align,
-      g.outer_cells[1].inner_cells[2].s.c.align,
-      g.outer_cells[1].inner_cells[3].s.c.align
-    );
-    $display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.align,
-      g.outer_cells[2].inner_cells[1].s.c.align,
-      g.outer_cells[2].inner_cells[2].s.c.align,
-      g.outer_cells[2].inner_cells[3].s.c.align
-    );
-    $display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.align,
-      g.outer_cells[3].inner_cells[1].s.c.align,
-      g.outer_cells[3].inner_cells[2].s.c.align,
-      g.outer_cells[3].inner_cells[3].s.c.align
-    );
+    //$display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.align,
+      //g.outer_cells[0].inner_cells[1].s.c.align,
+      //g.outer_cells[0].inner_cells[2].s.c.align,
+      //g.outer_cells[0].inner_cells[3].s.c.align
+    //);
+    //$display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.align,
+      //g.outer_cells[1].inner_cells[1].s.c.align,
+      //g.outer_cells[1].inner_cells[2].s.c.align,
+      //g.outer_cells[1].inner_cells[3].s.c.align
+    //);
+    //$display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.align,
+      //g.outer_cells[2].inner_cells[1].s.c.align,
+      //g.outer_cells[2].inner_cells[2].s.c.align,
+      //g.outer_cells[2].inner_cells[3].s.c.align
+    //);
+    //$display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.align,
+      //g.outer_cells[3].inner_cells[1].s.c.align,
+      //g.outer_cells[3].inner_cells[2].s.c.align,
+      //g.outer_cells[3].inner_cells[3].s.c.align
+    //);
 
     if (done == 1) begin
-      $display("==================DONE");
+      //$display("==================DONE");
       reset_b <= 1;
     end
 
@@ -119,9 +120,9 @@ always @(posedge clock.val) begin
         rreq <= 1;
     end
 
-    $display("h: %h", s1);
-    $display("h: %h", s2);
-    $display("=====count %d", count);
+    //$display("h: %h", s1);
+    //$display("h: %h", s2);
+    //$display("=====count %d", count);
     //count <= (count + 1);
     if ((&count)) begin
         $finish(1);
