@@ -31,14 +31,12 @@ module Cell#(
   output reg signed[SWIDTH-1:0] score, // out
   output reg [1:0] direction,
   output reg valid // out
-  //input wire align
 );
 
 //internal wires
 wire signed[SWIDTH-1:0] above_score = above + INDEL;
 wire signed[SWIDTH-1:0] left_score = left + INDEL;
 reg signed[SWIDTH-1:0] corner_score;
-//always @(c1, c2, corner) begin
 always @(*) begin
     if (c1 == c2) begin
     //$display("%b, %b MATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
@@ -48,20 +46,10 @@ always @(*) begin
       corner_score <= corner + MISMATCH;
     end
 end
-//reg [3:0] count = 0;
-//reg [1:0] direction = 2'b00;
 
 always @(posedge clk) begin
   if (reset == 0) begin
     if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
-      //above_score <= above + INDEL;
-      //left_score <= left + INDEL;
-      //if (c1 == c2) begin
-      //corner_score <= corner + MATCH;
-      //end else begin
-      //corner_score <= corner + MISMATCH;
-      //end
-
       if (above_score > left_score && above_score > corner_score) begin
         score <= above_score;
         direction <= TOP_DIR;
@@ -77,45 +65,14 @@ always @(posedge clk) begin
       //$display("corner_score %d", corner_score);
 
       //$display("CORD=== %d %d", X_CORD, Y_CORD);
-      //$display("back %b ", back);
-      //count = count + 1;
       valid <= 1;
     end
   end else begin
     valid <= 0;
     score <= 0;
     direction <= 2'b00;
-
   end
-
 end
-
-//always @(posedge clk) begin
-  //// propagating back to find alignment.
-  //if (reset == 0) begin
-    //if (back == 1) begin
-      //if (align == 1) begin
-        ////$display("CORD=== %d %d", X_CORD, Y_CORD);
-        //if (direction == TOP_DIR) begin
-          //b_above <= 1;
-          ////$display("top");
-        //end
-        //if (direction == LEFT_DIR) begin
-          //b_left <= 1;
-          ////$display("left");
-        //end
-        //if (direction == CORNER_DIR) begin
-          //b_corner <= 1;
-          ////$display("corner");
-        //end
-      //end
-    //end
-  //end else begin
-    //b_above <= 0;
-    //b_left <= 0;
-    //b_corner <= 0;
-  //end
-//end
 endmodule
 
 module Grid#(
@@ -152,40 +109,8 @@ module Grid#(
 wire [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 wire [1:0] directions[LENGTH-1:0][LENGTH-1:0];
 wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
-//wire align_matrix[LENGTH-1:0][LENGTH-1:0];
 wire tmp = 1;
-//wire tmp2 = 0;
 reg back = 0;
-        //Cell#(
-          //.CWIDTH(CWIDTH),
-          //.SWIDTH(SWIDTH),
-          //.X_CORD(0),
-          //.Y_CORD(0),
-          //.TOP_DIR(TOP_DIR),
-          //.LEFT_DIR(LEFT_DIR),
-          //.CORNER_DIR(CORNER_DIR),
-          //.MATCH(MATCH),
-          //.INDEL(INDEL),
-          //.MISMATCH(MISMATCH)
-        //) c (
-          //.clk(clk),
-          //.reset(reset),
-          //.c1(s1[((LENGTH-1)-0)*CWIDTH +:CWIDTH]),
-          //.c2(s2[((LENGTH-1)-0)*CWIDTH +:CWIDTH]),
-          //.v_above(tmp),
-          //.v_left(tmp),
-          //.v_corner(tmp),
-          ////.b_above(tmp2),
-          ////.b_left(tmp2),
-          ////.b_corner(tmp2),
-          //.above((0+1) * INDEL),
-          //.left((0+1) * INDEL),
-          //.corner(0),
-          //.back(back),
-          //.score(interconnect[0][0]),
-          //.valid(valid_matrix[0][0]),
-          //.align(align_matrix[0][0])
-        //);
 
 // generate some cell modules for the grid
 generate
@@ -214,9 +139,6 @@ generate
           .v_above(tmp),
           .v_left(tmp),
           .v_corner(tmp),
-          //.b_above(tmp2),
-          //.b_left(tmp2),
-          //.b_corner(tmp2),
           .above((k+1) * INDEL),
           .left((j+1) * INDEL),
           .corner(0),
@@ -224,7 +146,6 @@ generate
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
-          //.align(align_matrix[j][k])
         );
       end
       else if (j == 0) begin:s
@@ -248,9 +169,6 @@ generate
           .v_above(tmp),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(tmp),
-          //.b_above(tmp2),
-          //.b_left(align_matrix[j][k-1]),
-          //.b_corner(tmp2),
           .above((k+1) * INDEL),
           .left(interconnect[j][k-1]),
           .corner((k) * INDEL),
@@ -258,7 +176,6 @@ generate
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
-          //.align(align_matrix[j][k])
         );
       end
       else if (k == 0) begin:s
@@ -282,9 +199,6 @@ generate
           .v_above(valid_matrix[j-1][k]),
           .v_left(tmp),
           .v_corner(tmp),
-          //.b_above(align_matrix[j-1][k]),
-          //.b_left(tmp2),
-          //.b_corner(tmp2),
           .above(interconnect[j-1][k]),
           .left((j+1) * INDEL),
           .corner((j) * INDEL),
@@ -292,7 +206,6 @@ generate
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
-          //.align(align_matrix[j][k])
         );
       end
       else begin:s
@@ -316,9 +229,6 @@ generate
           .v_above(valid_matrix[j-1][k]),
           .v_left(valid_matrix[j][k-1]),
           .v_corner(valid_matrix[j-1][k-1]),
-          //.b_above(align_matrix[j-1][k]),
-          //.b_left(align_matrix[j][k-1]),
-          //.b_corner(align_matrix[j-1][k-1]),
           .above(interconnect[j-1][k]),
           .left(interconnect[j][k-1]),
           .corner(interconnect[j-1][k-1]),
@@ -326,7 +236,6 @@ generate
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
-          //.align(align_matrix[j][k])
         );
       end
     end
@@ -347,62 +256,15 @@ Memory#(MEM_SIZE, BYTE_SIZE) mem (
     .wdata(wdata)
 );
 
-//reg [1:0] direction;// = 2'b01;
-
-// multiplexer to extract the direction register from each cell depending on
-// the values in x and y.
-//generate
-    //for (j = 0; j < LENGTH; j=j+1) begin: wd
-        //for (k = 0; k < LENGTH; k=k+1) begin: wd_i
-            ////always @(x, y) begin
-            //always @(*) begin
-                //if (x == k && y == j && back == 1) begin
-                    //direction <= outer_cells[j].inner_cells[k].s.c.direction;
-                    ////$display("WE MATCH %d %d", j, k);
-                    ////$display("WE DIRECTION %b", direction);
-                    ////$display("hahaha %d", count);
-                //end
-            //end
-        //end
-    //end
-//endgenerate
-
-// this block will trigger once the similarity matrix is filled out. This is
-// determined by looking the the valid bit of the bottom right cell.
-//always @(valid_matrix[LENGTH-1][LENGTH-1]) begin
-    //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-        //back <= 1;
-        //direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
-        ////$display("ASDASDASD %d", count);
-        ////direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
-        ////align_matrix[LENGTH-1][LENGTH-1] <= 1;
-        //wen <= 1;
-        ////once <= 1;
-    //end
-//end
-
 always @(posedge clk) begin
-  //count <= count + 1;
-  //$display("count in grid: %d", count);
-  //if (once == 0 && valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-      //back <= 1;
-      //once <= 1;
-  //end
-
   if (reset == 0) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       back <= 1;
-      //direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
-      //$display("ASDASDASD %d", count);
-      //direction <= outer_cells[LENGTH-1].inner_cells[LENGTH-1].s.c.direction;
-      //align_matrix[LENGTH-1][LENGTH-1] <= 1;
       wen <= 1;
-      //once <= 1;
     end
 
     if (back == 1) begin
       //$display("=====================: %d", count);
-      //score = interconnect[LENGTH-1][LENGTH-1];
       //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
       waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
