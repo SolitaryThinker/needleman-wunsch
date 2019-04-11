@@ -6,7 +6,8 @@ localparam DATA_WIDTH = 2*LENGTH*CWIDTH;
 wire [DATA_WIDTH-1:0] rdata;
 reg rreq = 1;
 wire empty;
-(*__target="sw", __file="in.fifo"*)
+//(*__target="sw", __file="in.fifo"*)
+(*__file="in.fifo", __count=1000*)
 Fifo#(1, DATA_WIDTH) in (
   .clock(clock.val),
   .rreq(rreq),

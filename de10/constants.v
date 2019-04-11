@@ -3,7 +3,7 @@
 // Number of input pairs
 localparam NUM_INPUTS = 1000;
 // Number of characters per input
-localparam LENGTH = 12;
+localparam LENGTH = 15;
 // Number of bits per character
 localparam CWIDTH = 2;
 

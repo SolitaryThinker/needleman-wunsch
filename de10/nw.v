@@ -248,11 +248,19 @@ reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
 wire [BYTE_SIZE-1:0] wdata = {x, y};
-(*__file="file.mem"*)
-Memory#(MEM_SIZE, BYTE_SIZE) mem (
+
+//(*__file="file.mem"*)
+//Memory#(MEM_SIZE, BYTE_SIZE) mem (
+    //.clock(clk),
+    //.wen(wen),
+    //.waddr(waddr),
+    //.wdata(wdata)
+//);
+
+Fifo#(1, BYTE_SIZE) mem (
     .clock(clk),
-    .wen(wen),
-    .waddr(waddr),
+    .rreq(1),
+    .wreq(wen),
     .wdata(wdata)
 );
 
