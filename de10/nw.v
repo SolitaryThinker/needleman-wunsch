@@ -249,20 +249,28 @@ reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
 wire [BYTE_SIZE-1:0] wdata = {x, y};
 
-//(*__file="file.mem"*)
-//Memory#(MEM_SIZE, BYTE_SIZE) mem (
-    //.clock(clk),
-    //.wen(wen),
-    //.waddr(waddr),
-    //.wdata(wdata)
-//);
 
-Fifo#(1, BYTE_SIZE) mem (
-    .clock(clk),
-    .rreq(1),
-    .wreq(wen),
-    .wdata(wdata)
-);
+
+localparam USE_FIFO = 1;
+generate
+  if (USE_FIFO == 0) begin
+    (*__file="file.mem"*)
+    Memory#(MEM_SIZE, BYTE_SIZE) mem (
+      .clock(clk),
+      .wen(wen),
+      .waddr(waddr),
+      .wdata(wdata)
+    );
+  end else begin
+    Fifo#(1, BYTE_SIZE) mem (
+      .clock(clk),
+      .rreq(1),
+      .wreq(wen),
+      .wdata(wdata)
+    );
+  end
+endgenerate
+
 
 always @(posedge clk) begin
   if (reset == 0) begin
