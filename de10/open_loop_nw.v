@@ -243,10 +243,11 @@ generate
 endgenerate
 
 reg wen = 0;
-reg [MEM_SIZE-1:0] waddr = 0;
+reg [5-1:0] waddr = 0;
 reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
+reg [BYTE_SIZE-1:0] out_data[32-1:0];
 wire [BYTE_SIZE-1:0] wdata = {x, y};
 
 
@@ -282,6 +283,7 @@ always @(posedge clk) begin
     if (back == 1) begin
       //$display("=====================: %d", count);
       //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
+      out_data[waddr] <= wdata;
       waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
         //$display("||||||||||||||||||||||||||");
