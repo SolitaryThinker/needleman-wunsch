@@ -272,7 +272,8 @@ wire [BYTE_SIZE-1:0] wdata = {x, y};
   //end
 //endgenerate
 
-
+reg direction_extracted;
+reg [1:0] direction;
 always @(posedge clk) begin
   if (reset == 0) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
@@ -281,26 +282,32 @@ always @(posedge clk) begin
     end
 
     if (back == 1) begin
-      //$display("=====================: %d", count);
-      //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
-      out_data <= wdata;
-      waddr <= waddr + 1;
-      if (x == 0 && y == 0) begin
-        //$display("||||||||||||||||||||||||||");
-        valid <= 1;
-        wen <= 0;
-        //back <= 0;
-      end else if (x == 0 || directions[y][x] == TOP_DIR) begin
-        y <= y - 1;
-        //$display("top");
-      end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
-        x <= x - 1;
-        //$display("left");
-      end else if (directions[y][x] == CORNER_DIR) begin
-        x <= x - 1;
-        y <= y - 1;
-        //$display("corner");
-      end
+        if (direction_extracted == 0) begin
+            //$display("=====================: %d", count);
+            //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
+            out_data <= wdata;
+            waddr <= waddr + 1;
+            direction <= directions[y][x];
+            direction_extracted <= 1;
+        end else begin
+            direction_extracted <= 0;
+            if (x == 0 && y == 0) begin
+                //$display("||||||||||||||||||||||||||");
+                valid <= 1;
+                wen <= 0;
+                //back <= 0;
+            end else if (x == 0 || direction == TOP_DIR) begin
+                y <= y - 1;
+                //$display("top");
+            end else if (y == 0 || direction == LEFT_DIR) begin
+                x <= x - 1;
+                //$display("left");
+            end else if (direction == CORNER_DIR) begin
+                x <= x - 1;
+                y <= y - 1;
+                //$display("corner");
+            end
+        end
     end
   end else begin // if reset == 1
     x <= LENGTH-1;
