@@ -6,7 +6,7 @@ localparam REGISTER_OUTPUT = 2;
 localparam OUTPUT_TYPE = REGISTER_OUTPUT;
 
 // Number of characters per input
-localparam LENGTH = 15;
+localparam LENGTH = 2;
 // Number of bits per character
 localparam CWIDTH = 2;
 
