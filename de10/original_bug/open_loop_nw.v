@@ -252,26 +252,26 @@ wire [BYTE_SIZE-1:0] wdata = {x, y};
 
 always @(posedge clk) begin
   if (reset == 0) begin
-    //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-      //back <= 1;
-      //wen <= 1;
-    //end
+    if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+      back <= 1;
+      wen <= 1;
+    end
 
-    out_data <= wdata;
-    //if (back == 1) begin
-      //waddr <= waddr + 1;
-      //if (x == 0 && y == 0) begin
-        //valid <= 1;
-        //wen <= 0;
-      //end else if (x == 0 || directions[y][x] == TOP_DIR) begin
-        //y <= y - 1;
-      //end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
-        //x <= x - 1;
-      //end else if (directions[y][x] == CORNER_DIR) begin
-        //x <= x - 1;
-        //y <= y - 1;
-      //end
-    //end
+    //out_data <= wdata;
+    if (back == 1) begin
+      waddr <= waddr + 1;
+      if (x == 0 && y == 0) begin
+        valid <= 1;
+        wen <= 0;
+      end else if (x == 0 || directions[y][x] == TOP_DIR) begin
+        y <= y - 1;
+      end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
+        x <= x - 1;
+      end else if (directions[y][x] == CORNER_DIR) begin
+        x <= x - 1;
+        y <= y - 1;
+      end
+    end
   end else begin // if reset == 1
     x <= LENGTH-1;
     y <= LENGTH-1;
