@@ -1,19 +1,22 @@
-include constants.v;
-include nw.v;
+`include "constants.v"
+`include "nw.v"
 
 // Instantiate input fifo; we'll read input pairs one line at a time:
 localparam DATA_WIDTH = 2*LENGTH*CWIDTH;
-wire [DATA_WIDTH-1:0] rdata;
-reg rreq = 1;
-wire empty;
+reg [DATA_WIDTH-1:0] rdata;
+//reg rreq = 1;
+//wire empty;
 //(*__target="sw", __file="in.fifo"*)
-(*__file="in.fifo", __count=1000*)
-Fifo#(1, DATA_WIDTH) in (
-  .clock(clock.val),
-  .rreq(rreq),
-  .rdata(rdata),
-  .empty(empty)
-);
+
+//(*__file="in.fifo", __count=1000*)
+//Fifo#(1, DATA_WIDTH) in (
+  //.clock(clock.val),
+  //.rreq(rreq),
+  //.rdata(rdata),
+  //.empty(empty)
+//);
+
+integer i = $fopen("in.fifo");
 
 // Instantiate compute grid:
 wire [LENGTH*CWIDTH-1:0] s1 = rdata[2*LENGTH*CWIDTH-1:1*LENGTH*CWIDTH];
@@ -43,73 +46,31 @@ Grid#(
 reg once = 1;
 reg [5:0]count = 0;
 always @(posedge clock.val) begin
+    $display("ONCE=====================");
+  $fread(i, rdata);
+    $display("%h\n", rdata);
+  if ($feof(i)) begin
+    $display("eof=====================");
+    $finish;
+  end
   // Base case: Skip first input when fifo hasn't yet reported values
-  if (!once) begin
+  //if (!once) begin
     //$display("ONCE=====================");
-    once <= 1;
-  end
+    //once <= 1;
+  //end
   // Edge case: Stop running when the fifo reports empty
-  else if (empty) begin
-    $finish(1);
-  end
+  //else if (empty) begin
+  //if (empty) begin
+    //$finish(1);
+  //end
   // Common case: Print results as they become available
-  else begin
-    if (rreq == 1) begin
-        //$display("clearing rreq=============");
-        rreq <= 0;
-        //valid = 1;
-    end
+  //else begin
+    //if (rreq == 1) begin
+        //rreq <= 0;
+    //end
     //$display("decimal input char count  %h", rdata);
-
     //$display("decimal align(%d,%d) = %d", s1, s2, score);
     //$display("align(%h,%h) = %d", s1, s2, score);
-
-    //$display("=======================================================");
-    //$display("h: %h", s1);
-    //$display("h: %h", s2);
-    //$display("h: %b", s1);
-    //$display("h: %b", s2);
-    //$display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
-      //g.outer_cells[0].inner_cells[1].s.c.score,
-      //g.outer_cells[0].inner_cells[2].s.c.score,
-      //g.outer_cells[0].inner_cells[3].s.c.score
-    //);
-    //$display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.score,
-      //g.outer_cells[1].inner_cells[1].s.c.score,
-      //g.outer_cells[1].inner_cells[2].s.c.score,
-      //g.outer_cells[1].inner_cells[3].s.c.score
-    //);
-    //$display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.score,
-      //g.outer_cells[2].inner_cells[1].s.c.score,
-      //g.outer_cells[2].inner_cells[2].s.c.score,
-      //g.outer_cells[2].inner_cells[3].s.c.score
-    //);
-    //$display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.score,
-      //g.outer_cells[3].inner_cells[1].s.c.score,
-      //g.outer_cells[3].inner_cells[2].s.c.score,
-      //g.outer_cells[3].inner_cells[3].s.c.score
-    //);
-    //$display("-----------------------");
-    //$display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.align,
-      //g.outer_cells[0].inner_cells[1].s.c.align,
-      //g.outer_cells[0].inner_cells[2].s.c.align,
-      //g.outer_cells[0].inner_cells[3].s.c.align
-    //);
-    //$display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.align,
-      //g.outer_cells[1].inner_cells[1].s.c.align,
-      //g.outer_cells[1].inner_cells[2].s.c.align,
-      //g.outer_cells[1].inner_cells[3].s.c.align
-    //);
-    //$display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.align,
-      //g.outer_cells[2].inner_cells[1].s.c.align,
-      //g.outer_cells[2].inner_cells[2].s.c.align,
-      //g.outer_cells[2].inner_cells[3].s.c.align
-    //);
-    //$display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.align,
-      //g.outer_cells[3].inner_cells[1].s.c.align,
-      //g.outer_cells[3].inner_cells[2].s.c.align,
-      //g.outer_cells[3].inner_cells[3].s.c.align
-    //);
 
     if (done == 1) begin
       //$display("==================DONE");
@@ -118,7 +79,7 @@ always @(posedge clock.val) begin
 
     if (reset_b == 1) begin
         reset_b <= 0;
-        rreq <= 1;
+        //rreq <= 1;
     end
 
     //$display("h: %h", s1);
@@ -129,5 +90,5 @@ always @(posedge clock.val) begin
         $finish(1);
     end
     //$display("align(%h,%h) = %d", s1, s2, score);
-  end
+  //end
 end

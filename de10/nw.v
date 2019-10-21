@@ -242,8 +242,8 @@ generate
   end
 endgenerate
 
-reg wen = 0;
-reg [MEM_SIZE-1:0] waddr = 0;
+//reg wen = 0;
+//reg [MEM_SIZE-1:0] waddr = 0;
 reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
@@ -251,42 +251,44 @@ wire [BYTE_SIZE-1:0] wdata = {x, y};
 
 
 
-localparam USE_FIFO = 1;
-generate
-  if (USE_FIFO == 0) begin
-    (*__file="file.mem"*)
-    Memory#(MEM_SIZE, BYTE_SIZE) mem (
-      .clock(clk),
-      .wen(wen),
-      .waddr(waddr),
-      .wdata(wdata)
-    );
-  end else begin
-    Fifo#(1, BYTE_SIZE) mem (
-      .clock(clk),
-      .rreq(1),
-      .wreq(wen),
-      .wdata(wdata)
-    );
-  end
-endgenerate
+//localparam USE_FIFO = 1;
+//generate
+  //if (USE_FIFO == 0) begin
+    //(*__file="file.mem"*)
+    //Memory#(MEM_SIZE, BYTE_SIZE) mem (
+      //.clock(clk),
+      //.wen(wen),
+      //.waddr(waddr),
+      //.wdata(wdata)
+    //);
+  //end else begin
+    //Fifo#(1, BYTE_SIZE) mem (
+      //.clock(clk),
+      //.rreq(1),
+      //.wreq(wen),
+      //.wdata(wdata)
+    //);
+  //end
+//endgenerate
 
+integer o = $fopen("output.out");
 
 always @(posedge clk) begin
   if (reset == 0) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       back <= 1;
-      wen <= 1;
+      //wen <= 1;
     end
 
     if (back == 1) begin
       //$display("=====================: %d", count);
       //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
-      waddr <= waddr + 1;
+      $fwrite(o, "%h", wdata);
+      //waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
         //$display("||||||||||||||||||||||||||");
         valid <= 1;
-        wen <= 0;
+        //wen <= 0;
         //back <= 0;
       end else if (x == 0 || directions[y][x] == TOP_DIR) begin
         y <= y - 1;
