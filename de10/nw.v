@@ -282,7 +282,7 @@ always @(posedge clk) begin
 
     if (back == 1) begin
       //$display("=====================: %d", count);
-      //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
+      //$display("Writing [x:%d, y:%d] hex: %h", x, y, wdata);
       $fwrite(o, "%h", wdata);
       //waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
