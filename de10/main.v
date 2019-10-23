@@ -51,9 +51,9 @@ always @(posedge clock.val) begin
     //$display(rdata);
     //$display("%h\n", rdata);
   if ($feof(i)) begin
-    $fseek(i, 0, 0);
+    //$fseek(i, 0, 0);
     //$display("eof=====================");
-    //$finish;
+    $finish;
   end
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
