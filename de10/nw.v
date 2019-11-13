@@ -281,10 +281,13 @@ always @(posedge clk) begin
         y = y - 1;
         //$display("corner");
       end
+
     end
+
+  //if (reset== 0)
   end else begin // if reset == 1
     if (valid_matrix[LENGTH-1][LENGTH-1] == 0) begin
-      //$display(">>>>>>>>>>>>>>>>>>>>>");
+      $display("RESETTING>>>>>>>>>>>>>>>>>>>>>");
       x = LENGTH-1;
       y = LENGTH-1;
       valid = 0;

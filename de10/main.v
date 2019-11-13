@@ -82,17 +82,17 @@ always @(posedge clock.val) begin
 
     // Common case: Read next input if previous input is done
     if (done == 1) begin
-      //$display("==================DONE");
+      $display("==================DONE");
       //$display("align(%h,%h) = %d", s1, s2, score);
-      reset_b <= 1;
-    end
+      reset_b = 1;
+    end else begin
 
     if (reset_b == 1) begin
-        reset_b <= 0;
-        //$display("READING=====================");
+        reset_b = 0;
+        $display("READING=====================");
         $fread(i, rdata);
     end
-
+  end
     //$display("h: %h", s1);
     //$display("h: %h", s2);
     //$display("=====count %d", count);
