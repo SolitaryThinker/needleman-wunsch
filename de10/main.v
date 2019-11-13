@@ -4,17 +4,6 @@
 // Instantiate input fifo; we'll read input pairs one line at a time:
 localparam DATA_WIDTH = 2*LENGTH*CWIDTH;
 reg [DATA_WIDTH-1:0] rdata;
-//reg rreq = 1;
-//wire empty;
-//(*__target="sw", __file="in.fifo"*)
-
-//(*__file="in.fifo", __count=1000*)
-//Fifo#(1, DATA_WIDTH) in (
-  //.clock(clock.val),
-  //.rreq(rreq),
-  //.rdata(rdata),
-  //.empty(empty)
-//);
 
 integer i = $fopen("in.fifo", "r");
 
@@ -43,13 +32,10 @@ Grid#(
 );
 
 // While there are still inputs coming out of the fifo, print the results:
-reg once = 1;
+reg once = 0;
 reg [5:0]count = 0;
 always @(posedge clock.val) begin
-    //$display("ONCE=====================");
-  //$fread(i, rdata);
-    //$display(rdata);
-    //$display("%h\n", rdata);
+  // Edge case: Stop running when the eof reached
   if ($feof(i)) begin
     //$fseek(i, 0, 0);
     //$display("eof=====================");
@@ -60,29 +46,49 @@ always @(posedge clock.val) begin
     //$display("ONCE=====================");
     once <= 1;
   $fread(i, rdata);
+  //$fscanf(i, "%b", rdata);
   end
-  // Edge case: Stop running when the fifo reports empty
-  //else if (empty) begin
-  //if (empty) begin
-    //$finish(1);
-  //end
-  // Common case: Print results as they become available
   else begin
-    //if (rreq == 1) begin
-        //rreq <= 0;
-    //end
     //$display("decimal input char count  %h", rdata);
     //$display("decimal align(%d,%d) = %d", s1, s2, score);
-    //$display("align(%h,%h) = %d", s1, s2, score);
 
+
+    //$display("=======================================================");
+    //$display("h: %h", s1);
+    //$display("h: %h", s2);
+    //$display("h: %b", s1);
+    //$display("h: %b", s2);
+    //$display("%d %d %d %d", g.outer_cells[0].inner_cells[0].s.c.score,
+      //g.outer_cells[0].inner_cells[1].s.c.score,
+      //g.outer_cells[0].inner_cells[2].s.c.score,
+      //g.outer_cells[0].inner_cells[3].s.c.score
+    //);
+    //$display("%d %d %d %d", g.outer_cells[1].inner_cells[0].s.c.score,
+      //g.outer_cells[1].inner_cells[1].s.c.score,
+      //g.outer_cells[1].inner_cells[2].s.c.score,
+      //g.outer_cells[1].inner_cells[3].s.c.score
+    //);
+    //$display("%d %d %d %d", g.outer_cells[2].inner_cells[0].s.c.score,
+      //g.outer_cells[2].inner_cells[1].s.c.score,
+      //g.outer_cells[2].inner_cells[2].s.c.score,
+      //g.outer_cells[2].inner_cells[3].s.c.score
+    //);
+    //$display("%d %d %d %d", g.outer_cells[3].inner_cells[0].s.c.score,
+      //g.outer_cells[3].inner_cells[1].s.c.score,
+      //g.outer_cells[3].inner_cells[2].s.c.score,
+      //g.outer_cells[3].inner_cells[3].s.c.score
+    //);
+
+    // Common case: Read next input if previous input is done
     if (done == 1) begin
       //$display("==================DONE");
+      //$display("align(%h,%h) = %d", s1, s2, score);
       reset_b <= 1;
     end
 
     if (reset_b == 1) begin
         reset_b <= 0;
-        //rreq <= 1;
+        //$display("READING=====================");
         $fread(i, rdata);
     end
 
