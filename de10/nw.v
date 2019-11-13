@@ -18,16 +18,16 @@ module Cell#(
   input wire reset,
   input wire [CWIDTH-1:0] c1,
   input wire [CWIDTH-1:0] c2,
-  input reg v_above,
-  input reg v_left,
-  input reg v_corner,
+  input wire v_above,
+  input wire v_left,
+  input wire v_corner,
   output reg b_above,
   output reg b_left,
   output reg b_corner,
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
-  input reg back,
+  input wire back,
   output reg signed[SWIDTH-1:0] score, // out
   output reg [1:0] direction,
   output reg valid // out
@@ -40,10 +40,10 @@ reg signed[SWIDTH-1:0] corner_score;
 always @(*) begin
     if (c1 == c2) begin
     //$display("%b, %b MATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
-      corner_score <= corner + MATCH;
+      corner_score = corner + MATCH;
     end else begin
     //$display("%b, %b MISMATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
-      corner_score <= corner + MISMATCH;
+      corner_score = corner + MISMATCH;
     end
 end
 
@@ -51,26 +51,26 @@ always @(posedge clk) begin
   if (reset == 0) begin
     if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
       if (above_score > left_score && above_score > corner_score) begin
-        score <= above_score;
-        direction <= TOP_DIR;
+        score = above_score;
+        direction = TOP_DIR;
       end else if (left_score > above_score && left_score > corner_score) begin
-        score <= left_score;
-        direction <= LEFT_DIR;
+        score = left_score;
+        direction = LEFT_DIR;
       end else begin
-        score <= corner_score;
-        direction <= CORNER_DIR;
+        score = corner_score;
+        direction = CORNER_DIR;
       end
       //$display("above_score %d", above_score);
       //$display("left_score %d", left_score);
       //$display("corner_score %d", corner_score);
 
       //$display("CORD=== %d %d", X_CORD, Y_CORD);
-      valid <= 1;
+      valid = 1;
     end
   end else begin
-    valid <= 0;
-    score <= 0;
-    direction <= 2'b00;
+    valid = 0;
+    score = 0;
+    direction = 2'b00;
   end
 end
 endmodule
@@ -246,42 +246,50 @@ reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
 //wire [BYTE_SIZE-1:0] wdata = {x, y};
+//reg [2:0] reset_count = 0;
 
 integer o = $fopen("output.out");
 
 always @(posedge clk) begin
   if (reset == 0) begin
     if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-      back <= 1;
+      //$display("setting back");
+      //$display("Writing [x:%d, y:%d]", x, y);
+      back = 1;
     end
+      //$display("peed");
+
 
     if (back == 1) begin
       //$display("=====================: %d", count);
-      //$display("Writing [x:%d, y:%d] hex: %h", x, y, wdata);
+      //$display("Writing [x:%d, y:%d]", x, y);
       //$fwrite(o, "%h %h\n", wdata);
       $fwrite(o, "%d %d\n", x, y);
       //waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
         //$display("||||||||||||||||||||||||||");
-        valid <= 1;
+        valid = 1;
         //back <= 0;
       end else if (x == 0 || directions[y][x] == TOP_DIR) begin
-        y <= y - 1;
+        y = y - 1;
         //$display("top");
       end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
-        x <= x - 1;
+        x = x - 1;
         //$display("left");
       end else if (directions[y][x] == CORNER_DIR) begin
-        x <= x - 1;
-        y <= y - 1;
+        x = x - 1;
+        y = y - 1;
         //$display("corner");
       end
     end
   end else begin // if reset == 1
-    x <= LENGTH-1;
-    y <= LENGTH-1;
-    valid <= 0;
-    back <= 0;
+    if (valid_matrix[LENGTH-1][LENGTH-1] == 0) begin
+      //$display(">>>>>>>>>>>>>>>>>>>>>");
+      x = LENGTH-1;
+      y = LENGTH-1;
+      valid = 0;
+      back = 0;
+    end
   end
 end
 

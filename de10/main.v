@@ -35,6 +35,7 @@ Grid#(
 reg once = 0;
 reg [5:0]count = 0;
 always @(posedge clock.val) begin
+    //$display("===================== %b", done);
   // Edge case: Stop running when the eof reached
   if ($feof(i)) begin
     //$fseek(i, 0, 0);
@@ -44,7 +45,7 @@ always @(posedge clock.val) begin
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
     //$display("ONCE=====================");
-    once <= 1;
+    once = 1;
   $fread(i, rdata);
   //$fscanf(i, "%b", rdata);
   end
