@@ -2,7 +2,7 @@
 localparam OUTPUT_TYPE = 0;
 
 // Number of characters per input
-localparam LENGTH = 14;
+localparam LENGTH = 2;
 // Number of bits per character
 localparam CWIDTH = 2;
 

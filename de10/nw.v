@@ -263,22 +263,20 @@ always @(posedge clk) begin
     if (back == 1) begin
       //$display("=====================: %d", count);
       //$display("Writing [x:%d, y:%d]", x, y);
-      //$fwrite(o, "%h %h\n", wdata);
       $fwrite(o, "%d %d\n", x, y);
-      //waddr <= waddr + 1;
       if (x == 0 && y == 0) begin
         //$display("||||||||||||||||||||||||||");
-        valid = 1;
+        valid <= 1;
         //back <= 0;
       end else if (x == 0 || directions[y][x] == TOP_DIR) begin
-        y = y - 1;
+        y <= y - 1;
         //$display("top");
       end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
-        x = x - 1;
+        x <= x - 1;
         //$display("left");
       end else if (directions[y][x] == CORNER_DIR) begin
-        x = x - 1;
-        y = y - 1;
+        x <= x - 1;
+        y <= y - 1;
         //$display("corner");
       end
 
@@ -287,11 +285,11 @@ always @(posedge clk) begin
   //if (reset== 0)
   end else begin // if reset == 1
     if (valid_matrix[LENGTH-1][LENGTH-1] == 0) begin
-      $display("RESETTING>>>>>>>>>>>>>>>>>>>>>");
-      x = LENGTH-1;
-      y = LENGTH-1;
-      valid = 0;
-      back = 0;
+      //$display("RESETTING>>>>>>>>>>>>>>>>>>>>>");
+      x <= LENGTH-1;
+      y <= LENGTH-1;
+      valid <= 0;
+      back <= 0;
     end
   end
 end

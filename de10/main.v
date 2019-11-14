@@ -33,7 +33,7 @@ Grid#(
 
 // While there are still inputs coming out of the fifo, print the results:
 reg once = 0;
-reg [5:0]count = 0;
+//reg [5:0]count = 0;
 always @(posedge clock.val) begin
     //$display("===================== %b", done);
   // Edge case: Stop running when the eof reached
@@ -45,8 +45,8 @@ always @(posedge clock.val) begin
   // Base case: Skip first input when fifo hasn't yet reported values
   if (!once) begin
     //$display("ONCE=====================");
-    once = 1;
-  $fread(i, rdata);
+    once <= 1;
+    $fread(i, rdata);
   //$fscanf(i, "%b", rdata);
   end
   else begin
@@ -82,24 +82,23 @@ always @(posedge clock.val) begin
 
     // Common case: Read next input if previous input is done
     if (done == 1) begin
-      $display("==================DONE");
+      //$display("==================DONE");
       //$display("align(%h,%h) = %d", s1, s2, score);
       reset_b = 1;
     end else begin
-
-    if (reset_b == 1) begin
+      if (reset_b == 1) begin
         reset_b = 0;
-        $display("READING=====================");
+        //$display("READING=====================");
         $fread(i, rdata);
+      end
     end
-  end
     //$display("h: %h", s1);
     //$display("h: %h", s2);
     //$display("=====count %d", count);
     //count <= (count + 1);
-    if ((&count)) begin
-        $finish(1);
-    end
+    //if ((&count)) begin
+        //$finish(1);
+    //end
     //$display("align(%h,%h) = %d", s1, s2, score);
   end
 end
