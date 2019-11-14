@@ -21,9 +21,9 @@ module Cell#(
   input wire v_above,
   input wire v_left,
   input wire v_corner,
-  output reg b_above,
-  output reg b_left,
-  output reg b_corner,
+  //output reg b_above,
+  //output reg b_left,
+  //output reg b_corner,
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
@@ -110,7 +110,7 @@ module Grid#(
 wire [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 wire [1:0] directions[LENGTH-1:0][LENGTH-1:0];
 wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
-wire tmp = 1;
+//wire tmp = 1;
 reg back = 0;
 
 // generate some cell modules for the grid
@@ -137,9 +137,9 @@ generate
           .reset(reset),
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
-          .v_above(tmp),
-          .v_left(tmp),
-          .v_corner(tmp),
+          .v_above(1),
+          .v_left(1),
+          .v_corner(1),
           .above((k+1) * INDEL),
           .left((j+1) * INDEL),
           .corner(0),
@@ -167,9 +167,9 @@ generate
           .reset(reset),
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
-          .v_above(tmp),
+          .v_above(1),
           .v_left(valid_matrix[j][k-1]),
-          .v_corner(tmp),
+          .v_corner(1),
           .above((k+1) * INDEL),
           .left(interconnect[j][k-1]),
           .corner((k) * INDEL),
@@ -198,8 +198,8 @@ generate
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
-          .v_left(tmp),
-          .v_corner(tmp),
+          .v_left(1),
+          .v_corner(1),
           .above(interconnect[j-1][k]),
           .left((j+1) * INDEL),
           .corner((j) * INDEL),
