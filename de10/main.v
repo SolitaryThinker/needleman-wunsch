@@ -84,10 +84,10 @@ always @(posedge clock.val) begin
     if (done == 1) begin
       //$display("==================DONE");
       //$display("align(%h,%h) = %d", s1, s2, score);
-      reset_b = 1;
+      reset_b <= 1;
     end else begin
       if (reset_b == 1) begin
-        reset_b = 0;
+        reset_b <= 0;
         //$display("READING=====================");
         $fread(i, rdata);
       end

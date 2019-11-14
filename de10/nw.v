@@ -47,30 +47,31 @@ always @(*) begin
     end
 end
 
-always @(posedge clk) begin
+//always @(posedge clk) begin
+always @(*) begin
   if (reset == 0) begin
     if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
       if (above_score > left_score && above_score > corner_score) begin
-        score <= above_score;
-        direction <= TOP_DIR;
+        score = above_score;
+        direction = TOP_DIR;
       end else if (left_score > above_score && left_score > corner_score) begin
-        score <= left_score;
-        direction <= LEFT_DIR;
+        score = left_score;
+        direction = LEFT_DIR;
       end else begin
-        score <= corner_score;
-        direction <= CORNER_DIR;
+        score = corner_score;
+        direction = CORNER_DIR;
       end
       //$display("above_score %d", above_score);
       //$display("left_score %d", left_score);
       //$display("corner_score %d", corner_score);
 
       //$display("CORD=== %d %d", X_CORD, Y_CORD);
-      valid <= 1;
+      valid = 1;
     end
   end else begin
-    valid <= 0;
-    score <= 0;
-    direction <= 2'b00;
+    valid = 0;
+    score = 0;
+    direction = 2'b00;
   end
 end
 endmodule
