@@ -27,7 +27,7 @@ module Cell#(
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
-  input wire back,
+  //input wire back,
   output reg signed[SWIDTH-1:0] score, // out
   output reg [1:0] direction,
   output reg valid // out
@@ -50,7 +50,8 @@ end
 //always @(posedge clk) begin
 always @(*) begin
   if (reset == 0) begin
-    if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+    //if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+    if (v_above == 1 && v_left == 1 && v_corner == 1) begin
       if (above_score > left_score && above_score > corner_score) begin
         score = above_score;
         direction = TOP_DIR;
@@ -111,7 +112,7 @@ wire [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 wire [1:0] directions[LENGTH-1:0][LENGTH-1:0];
 wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
 //wire tmp = 1;
-reg back = 0;
+//reg back = 0;
 
 // generate some cell modules for the grid
 generate
@@ -143,7 +144,7 @@ generate
           .above((k+1) * INDEL),
           .left((j+1) * INDEL),
           .corner(0),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -173,7 +174,7 @@ generate
           .above((k+1) * INDEL),
           .left(interconnect[j][k-1]),
           .corner((k) * INDEL),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -203,7 +204,7 @@ generate
           .above(interconnect[j-1][k]),
           .left((j+1) * INDEL),
           .corner((j) * INDEL),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -233,7 +234,7 @@ generate
           .above(interconnect[j-1][k]),
           .left(interconnect[j][k-1]),
           .corner(interconnect[j-1][k-1]),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -251,17 +252,20 @@ reg [CORD_LENGTH-1:0] y = LENGTH-1;
 
 integer o = $fopen("output.out");
 
+//always @(*) begin
+  //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+    ////$display("setting back");
+    ////$display("Writing [x:%d, y:%d]", x, y);
+    //back = 1;
+  //end
+//end
 always @(posedge clk) begin
   if (reset == 0) begin
-    if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-      //$display("setting back");
-      //$display("Writing [x:%d, y:%d]", x, y);
-      back = 1;
-    end
       //$display("peed");
 
 
-    if (back == 1) begin
+    //if (back == 1) begin
+  if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       //$display("=====================: %d", count);
       //$display("Writing [x:%d, y:%d]", x, y);
       $fwrite(o, "%d %d\n", x, y);
@@ -290,7 +294,7 @@ always @(posedge clk) begin
       x <= LENGTH-1;
       y <= LENGTH-1;
       valid <= 0;
-      back <= 0;
+      //back <= 0;
     end
   end
 end
