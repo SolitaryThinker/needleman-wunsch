@@ -42,8 +42,8 @@ always @(*) begin
     end
 end
 
-//always @(posedge clk) begin
-always @(*) begin
+always @(posedge clk) begin
+//always @(*) begin
   if (reset == 0) begin
     //if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
     if (v_above == 1 && v_left == 1 && v_corner == 1) begin
