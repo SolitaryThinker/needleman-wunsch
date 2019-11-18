@@ -21,9 +21,6 @@ module Cell#(
   input wire v_above,
   input wire v_left,
   input wire v_corner,
-  //output reg b_above,
-  //output reg b_left,
-  //output reg b_corner,
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
@@ -39,10 +36,8 @@ wire signed[SWIDTH-1:0] left_score = left + INDEL;
 reg signed[SWIDTH-1:0] corner_score;
 always @(*) begin
     if (c1 == c2) begin
-    //$display("%b, %b MATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
       corner_score = corner + MATCH;
     end else begin
-    //$display("%b, %b MISMATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
       corner_score = corner + MISMATCH;
     end
 end
@@ -62,11 +57,6 @@ always @(*) begin
         score = corner_score;
         direction = CORNER_DIR;
       end
-      //$display("above_score %d", above_score);
-      //$display("left_score %d", left_score);
-      //$display("corner_score %d", corner_score);
-
-      //$display("CORD=== %d %d", X_CORD, Y_CORD);
       valid = 1;
     end
   end else begin
@@ -111,7 +101,6 @@ module Grid#(
 wire [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 wire [1:0] directions[LENGTH-1:0][LENGTH-1:0];
 wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
-//wire tmp = 1;
 //reg back = 0;
 
 // generate some cell modules for the grid
@@ -246,24 +235,11 @@ endgenerate
 
 reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
-// our write data will always be the concatnation of x and y.
-//wire [BYTE_SIZE-1:0] wdata = {x, y};
-//reg [2:0] reset_count = 0;
 
 integer o = $fopen("output.out");
 
-//always @(*) begin
-  //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-    ////$display("setting back");
-    ////$display("Writing [x:%d, y:%d]", x, y);
-    //back = 1;
-  //end
-//end
 always @(posedge clk) begin
   if (reset == 0) begin
-      //$display("peed");
-
-
     //if (back == 1) begin
   if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       //$display("=====================: %d", count);
@@ -275,19 +251,13 @@ always @(posedge clk) begin
         //back <= 0;
       end else if (x == 0 || directions[y][x] == TOP_DIR) begin
         y <= y - 1;
-        //$display("top");
       end else if (y == 0 || directions[y][x] == LEFT_DIR) begin
         x <= x - 1;
-        //$display("left");
       end else if (directions[y][x] == CORNER_DIR) begin
         x <= x - 1;
         y <= y - 1;
-        //$display("corner");
       end
-
     end
-
-  //if (reset== 0)
   end else begin // if reset == 1
     if (valid_matrix[LENGTH-1][LENGTH-1] == 0) begin
       //$display("RESETTING>>>>>>>>>>>>>>>>>>>>>");
@@ -298,5 +268,4 @@ always @(posedge clk) begin
     end
   end
 end
-
 endmodule
