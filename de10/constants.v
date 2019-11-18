@@ -1,12 +1,8 @@
-// Output types
-localparam FIFO_OUTPUT = 0;
-localparam MEM_OUTPUT = 1;
-localparam REGISTER_OUTPUT = 2;
 // Output type
-localparam OUTPUT_TYPE = REGISTER_OUTPUT;
+localparam OUTPUT_TYPE = 0;
 
 // Number of characters per input
-localparam LENGTH = 15;
+localparam LENGTH = 14;
 // Number of bits per character
 localparam CWIDTH = 2;
 

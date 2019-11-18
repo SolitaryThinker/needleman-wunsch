@@ -18,16 +18,16 @@ module Cell#(
   input wire reset,
   input wire [CWIDTH-1:0] c1,
   input wire [CWIDTH-1:0] c2,
-  input reg v_above,
-  input reg v_left,
-  input reg v_corner,
-  output reg b_above,
-  output reg b_left,
-  output reg b_corner,
+  input wire v_above,
+  input wire v_left,
+  input wire v_corner,
+  //output reg b_above,
+  //output reg b_left,
+  //output reg b_corner,
   input wire signed[SWIDTH-1:0] above,
   input wire signed[SWIDTH-1:0] left,
   input wire signed[SWIDTH-1:0] corner, // score from top left corner
-  input reg back,
+  //input wire back,
   output reg signed[SWIDTH-1:0] score, // out
   output reg [1:0] direction,
   output reg valid // out
@@ -40,37 +40,39 @@ reg signed[SWIDTH-1:0] corner_score;
 always @(*) begin
     if (c1 == c2) begin
     //$display("%b, %b MATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
-      corner_score <= corner + MATCH;
+      corner_score = corner + MATCH;
     end else begin
     //$display("%b, %b MISMATCH CORD=== %d %d", c1, c2, X_CORD, Y_CORD);
-      corner_score <= corner + MISMATCH;
+      corner_score = corner + MISMATCH;
     end
 end
 
-always @(posedge clk) begin
+//always @(posedge clk) begin
+always @(*) begin
   if (reset == 0) begin
-    if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+    //if (back == 0 && v_above == 1 && v_left == 1 && v_corner == 1) begin
+    if (v_above == 1 && v_left == 1 && v_corner == 1) begin
       if (above_score > left_score && above_score > corner_score) begin
-        score <= above_score;
-        direction <= TOP_DIR;
+        score = above_score;
+        direction = TOP_DIR;
       end else if (left_score > above_score && left_score > corner_score) begin
-        score <= left_score;
-        direction <= LEFT_DIR;
+        score = left_score;
+        direction = LEFT_DIR;
       end else begin
-        score <= corner_score;
-        direction <= CORNER_DIR;
+        score = corner_score;
+        direction = CORNER_DIR;
       end
       //$display("above_score %d", above_score);
       //$display("left_score %d", left_score);
       //$display("corner_score %d", corner_score);
 
       //$display("CORD=== %d %d", X_CORD, Y_CORD);
-      valid <= 1;
+      valid = 1;
     end
   end else begin
-    valid <= 0;
-    score <= 0;
-    direction <= 2'b00;
+    valid = 0;
+    score = 0;
+    direction = 2'b00;
   end
 end
 endmodule
@@ -109,8 +111,8 @@ module Grid#(
 wire [SWIDTH-1:0] interconnect[LENGTH-1:0][LENGTH-1:0];
 wire [1:0] directions[LENGTH-1:0][LENGTH-1:0];
 wire valid_matrix[LENGTH-1:0][LENGTH-1:0];
-wire tmp = 1;
-reg back = 0;
+//wire tmp = 1;
+//reg back = 0;
 
 // generate some cell modules for the grid
 generate
@@ -136,13 +138,13 @@ generate
           .reset(reset),
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
-          .v_above(tmp),
-          .v_left(tmp),
-          .v_corner(tmp),
+          .v_above(1),
+          .v_left(1),
+          .v_corner(1),
           .above((k+1) * INDEL),
           .left((j+1) * INDEL),
           .corner(0),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -166,13 +168,13 @@ generate
           .reset(reset),
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
-          .v_above(tmp),
+          .v_above(1),
           .v_left(valid_matrix[j][k-1]),
-          .v_corner(tmp),
+          .v_corner(1),
           .above((k+1) * INDEL),
           .left(interconnect[j][k-1]),
           .corner((k) * INDEL),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -197,12 +199,12 @@ generate
           .c1(s1[((LENGTH-1)-j)*CWIDTH +:CWIDTH]),
           .c2(s2[((LENGTH-1)-k)*CWIDTH +:CWIDTH]),
           .v_above(valid_matrix[j-1][k]),
-          .v_left(tmp),
-          .v_corner(tmp),
+          .v_left(1),
+          .v_corner(1),
           .above(interconnect[j-1][k]),
           .left((j+1) * INDEL),
           .corner((j) * INDEL),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -232,7 +234,7 @@ generate
           .above(interconnect[j-1][k]),
           .left(interconnect[j][k-1]),
           .corner(interconnect[j-1][k-1]),
-          .back(back),
+          //.back(back),
           .score(interconnect[j][k]),
           .direction(directions[j][k]),
           .valid(valid_matrix[j][k])
@@ -242,53 +244,34 @@ generate
   end
 endgenerate
 
-reg wen = 0;
-wire empty;
-reg [MEM_SIZE-1:0] waddr = 0;
 reg [CORD_LENGTH-1:0] x = LENGTH-1;
 reg [CORD_LENGTH-1:0] y = LENGTH-1;
 // our write data will always be the concatnation of x and y.
-wire [BYTE_SIZE-1:0] wdata = {x, y};
+//wire [BYTE_SIZE-1:0] wdata = {x, y};
+//reg [2:0] reset_count = 0;
 
+integer o = $fopen("output.out");
 
-
-localparam USE_FIFO = 1;
-generate
-  if (USE_FIFO == 0) begin
-    (*__file="file.mem"*)
-    Memory#(MEM_SIZE, BYTE_SIZE) mem (
-      .clock(clk),
-      .wen(wen),
-      .waddr(waddr),
-      .wdata(wdata)
-    );
-  end else begin
-    Fifo#(1, BYTE_SIZE) mem (
-      .clock(clk),
-      .rreq(!empty),
-      .wreq(wen),
-      .wdata(wdata),
-      .empty(empty)
-    );
-  end
-endgenerate
-
-
+//always @(*) begin
+  //if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
+    ////$display("setting back");
+    ////$display("Writing [x:%d, y:%d]", x, y);
+    //back = 1;
+  //end
+//end
 always @(posedge clk) begin
   if (reset == 0) begin
-    if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
-      back <= 1;
-      wen <= 1;
-    end
+      //$display("peed");
 
-    if (back == 1) begin
+
+    //if (back == 1) begin
+  if (valid_matrix[LENGTH-1][LENGTH-1] == 1) begin
       //$display("=====================: %d", count);
-      //$display("Writing [x:%d, y:%d] hex: %h to mem %d", x, y, wdata, waddr);
-      waddr <= waddr + 1;
+      //$display("Writing [x:%d, y:%d]", x, y);
+      $fwrite(o, "%d %d\n", x, y);
       if (x == 0 && y == 0) begin
         //$display("||||||||||||||||||||||||||");
         valid <= 1;
-        wen <= 0;
         //back <= 0;
       end else if (x == 0 || directions[y][x] == TOP_DIR) begin
         y <= y - 1;
@@ -301,12 +284,18 @@ always @(posedge clk) begin
         y <= y - 1;
         //$display("corner");
       end
+
     end
+
+  //if (reset== 0)
   end else begin // if reset == 1
-    x <= LENGTH-1;
-    y <= LENGTH-1;
-    valid <= 0;
-    back <= 0;
+    if (valid_matrix[LENGTH-1][LENGTH-1] == 0) begin
+      //$display("RESETTING>>>>>>>>>>>>>>>>>>>>>");
+      x <= LENGTH-1;
+      y <= LENGTH-1;
+      valid <= 0;
+      //back <= 0;
+    end
   end
 end
 
